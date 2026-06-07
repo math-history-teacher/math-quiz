@@ -123,9 +123,11 @@
     font-size: 16px; font-weight: 700; color: #1a3a88;
     line-height: 2; margin-bottom: 16px;
     padding-bottom: 14px; border-bottom: 1px solid #ccd5ea;
-    white-space: pre; font-family: 'Courier New', monospace;
+    white-space: pre-wrap; word-break: break-word;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
   }
-  .answer-panel .ap-explain { font-size: 13.5px; color: #4466aa; line-height: 2; white-space: pre; font-family: 'Courier New', 'Osaka-Mono', monospace; letter-spacing: 0.02em; }
+  .answer-panel .ap-explain { font-size: 13.5px; color: #4466aa; line-height: 2; white-space: pre-wrap; word-break: break-word; font-family: 'Courier New', 'Osaka-Mono', monospace; letter-spacing: 0.02em; overflow-x: auto; }
   .ap-section-label { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px; font-family: 'Noto Sans JP', sans-serif; }
   .ap-label-housin { background: #e8f0fb; color: #3355aa; border: 1px solid #b0c4e8; }
   .ap-label-shomei { background: #eaf5ee; color: #1a6a3a; border: 1px solid #a0d4b0; }
@@ -215,12 +217,62 @@
   /* SEND STATUS */
   .send-status { text-align: center; font-size: 13px; color: #7080d0; min-height: 22px; margin-bottom: 10px; }
 
+  /* ── レスポンシブ（480px 以下） ─────────────────────── */
   @media (max-width: 480px) {
+    /* レイアウト */
+    .app { padding: 16px 12px 60px; }
+
+    /* TOP */
+    .top-header { padding: 30px 0 20px; }
+    .top-header h1 { font-size: 22px; }
     .section-grid { grid-template-columns: 1fr; }
-    .result-score { font-size: 60px; }
-    .question-card { padding: 20px 18px; }
+    .section-card { padding: 14px 16px; }
+
+    /* ログイン */
+    .login-wrap { padding: 40px 0 28px; }
+    .login-wrap h1 { font-size: 22px; }
+    .login-form { max-width: 100%; }
+
+    /* クイズヘッダー */
+    .quiz-header { flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .progress-wrap { width: 100%; margin-right: 0; }
+    .timer-box { align-self: flex-end; margin-left: auto; }
+    .timer-val { font-size: 22px; }
+
+    /* 問題カード */
+    .question-card { padding: 16px 14px; }
     .q-text { font-size: 15px; }
+
+    /* 解答パネル */
+    .answer-panel { padding: 16px 14px; }
+    .answer-panel .ap-answer { font-size: 14px; }
+    .answer-panel .ap-explain { font-size: 12.5px; }
+
+    /* 自己採点ボタン */
+    .eval-btns { gap: 8px; }
+    .eval-btn { padding: 14px 8px; font-size: 13px; }
+
+    /* アクションボタン行 */
+    .action-row { flex-direction: column; gap: 8px; }
+    .save-quit-btn { width: 100%; text-align: center; padding: 12px; }
+    .next-btn { display: block; width: 100%; }
+
+    /* 結果画面 */
+    .result-header { padding: 30px 0 20px; }
+    .result-score { font-size: 56px; }
+    .result-msg { font-size: 15px; }
+    .result-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 12px 8px; }
+    .stat-card .sv { font-size: 20px; }
+    .stat-card .sl { font-size: 10px; }
+
+    /* 要復習リスト */
+    .review-item { padding: 12px; }
+    .review-item .ri-q { font-size: 12px; }
+    .review-item .ri-a { font-size: 11px; }
   }
+
+  /* KaTeX */
   .katex { font-size: 1em; }
   .katex-display { margin: 0.3em 0; overflow-x: auto; }
   .ap-explain .katex { font-size: 0.95em; }
