@@ -688,7 +688,7 @@ function showResult() {
   document.getElementById('result-msg').textContent=msgs[scoreVal>=90?3:scoreVal>=70?2:scoreVal>=50?1:0];
   const rl=document.getElementById('review-list');
   const ngItems=state.results.map((r,i)=>({r,i})).filter(x=>x.r===false);
-  if(ngItems.length===0){
+  if(ok===total && total>0){
     rl.innerHTML='<div style="text-align:center;color:#3a9a55;padding:24px;font-size:15px">🎉 全問正解！素晴らしい！</div>';
   }else{
     rl.innerHTML=ngItems.map(x=>{const q=state.questions[x.i];return`<div class="review-item ng-item"><div class="ri-q">Q${x.i+1}　${q.text.substring(0,60)}${q.text.length>60?'…':''}</div><div class="ri-a" id="ri-a-${x.i}"></div></div>`;}).join('');
