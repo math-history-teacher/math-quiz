@@ -215,6 +215,31 @@
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbz2ibmRr52ieRLVnEzCQPwakQS99z-vCnzoPcik-059-hGskZligAcoxFGhenzh8RGT/exec';
 
 let allRecords = [];
+
+// GAS から受け取ったレコードを型安全に正規化する
+function normalizeRecord(r) {
+  // timestamp: 文字列・Date・シリアル値いずれにも対応
+  let ts = r.timestamp || '';
+  if (typeof ts === 'number') {
+    // GAS シリアル値（1900-01-01 起点のシリアル）の場合
+    ts = new Date((ts - 25569) * 86400 * 1000).toISOString();
+  }
+  // ISO 文字列として Date が生成できるか確認
+  const tsDate = new Date(ts);
+  const tsStr = isNaN(tsDate.getTime()) ? '' : tsDate.toISOString();
+
+  return {
+    timestamp:      tsStr,
+    studentId:      Number(r.studentId)      || 0,
+    studentName:    String(r.studentName     || ''),
+    sections:       Array.isArray(r.sections) ? r.sections : (r.sections ? String(r.sections).split(',').filter(Boolean) : []),
+    totalQuestions: Number(r.totalQuestions) || 0,
+    correctCount:   Number(r.correctCount)   || 0,
+    scorePercent:   Number(r.scorePercent)   || 0,
+    details:        Array.isArray(r.details) ? r.details : []
+  };
+}
+
 let trendChartInstance = null;
 let sectionChartInstance = null;
 let questionChartInstance = null;
@@ -238,7 +263,7 @@ function loadData() {
   showSpinner('trend-content');
 
   if (!GAS_URL || GAS_URL === 'ここにGASのURLを貼る') {
-    allRecords = getSampleData();
+    allRecords = getSampleData().map(normalizeRecord);
     renderAllTabs();
     return;
   }
@@ -246,10 +271,11 @@ function loadData() {
   fetch(GAS_URL + '?action=getAll')
     .then(r => r.json())
     .then(data => {
-      allRecords = Array.isArray(data) ? data : [];
+      allRecords = Array.isArray(data) ? data.map(normalizeRecord) : [];
       renderAllTabs();
     })
-    .catch(() => {
+    .catch(err => {
+      console.error('データ取得エラー:', err);
       allRecords = [];
       renderAllTabs();
     });
