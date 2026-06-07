@@ -691,9 +691,14 @@ function showResult() {
   if(ok===total && total>0){
     rl.innerHTML='<div style="text-align:center;color:#3a9a55;padding:24px;font-size:15px">🎉 全問正解！素晴らしい！</div>';
   }else{
-    rl.innerHTML=ngItems.map(x=>{const q=state.questions[x.i];return`<div class="review-item ng-item"><div class="ri-q">Q${x.i+1}　${q.text.substring(0,60)}${q.text.length>60?'…':''}</div><div class="ri-a" id="ri-a-${x.i}"></div></div>`;}).join('');
+    rl.innerHTML=ngItems.map(x=>{return`<div class="review-item ng-item"><div class="ri-q" id="ri-q-${x.i}"></div><div class="ri-a" id="ri-a-${x.i}"></div></div>`;}).join('');
   }
-  // Render KaTeX in review list answers
+  // Render KaTeX in review list: question text and answers
+  document.querySelectorAll('[id^="ri-q-"]').forEach(function(el) {
+    var idx = parseInt(el.id.replace('ri-q-', ''));
+    var q = state.questions[idx];
+    renderText(el, 'Q'+(idx+1)+'　'+q.text);
+  });
   document.querySelectorAll('[id^="ri-a-"]').forEach(function(el) {
     var idx = parseInt(el.id.replace('ri-a-', ''));
     var q = state.questions[idx];
