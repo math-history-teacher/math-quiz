@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数学Ⅱ 先生用ダッシュボード</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -151,6 +153,10 @@
   }
   .section-select:focus { border-color: #5060c8; }
 
+  /* KaTeX */
+  .katex { font-size: 0.95em; }
+  .katex-display { display: inline; margin: 0; }
+
   @media (max-width: 600px) {
     .tab-btn { padding: 12px 12px; font-size: 12px; }
     .header h1 { font-size: 15px; }
@@ -238,6 +244,29 @@ function normalizeRecord(r) {
     scorePercent:   Number(r.scorePercent)   || 0,
     details:        Array.isArray(r.details) ? r.details : []
   };
+}
+
+// $...$ の inline math を KaTeX でレンダリングして HTML 文字列を返す
+function mathToHtml(text) {
+  if (!text) return '';
+  var parts = String(text).split(/(\$[^$\n]+?\$)/g);
+  return parts.map(function(part) {
+    if (part.charAt(0) === '$' && part.charAt(part.length - 1) === '$' && part.length > 2) {
+      try {
+        return katex.renderToString(part.slice(1, -1), { throwOnError: false, displayMode: false });
+      } catch (e) {
+        return escHtml(part);
+      }
+    }
+    return escHtml(part);
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 let trendChartInstance = null;
@@ -492,7 +521,7 @@ function renderSectionDetail() {
   let html = '<table><thead><tr><th>問題文</th><th>正解率</th><th>回答数</th></tr></thead><tbody>';
   qs.forEach(q => {
     const badge = q.rate >= 80 ? 'badge-high' : q.rate >= 50 ? 'badge-mid' : 'badge-low';
-    html += `<tr><td style="font-size:12px;max-width:340px">${q.text}</td><td><span class="badge ${badge}">${q.rate}%</span></td><td>${q.total}</td></tr>`;
+    html += `<tr><td style="font-size:12px;max-width:340px;line-height:1.8">${mathToHtml(q.text)}</td><td><span class="badge ${badge}">${q.rate}%</span></td><td>${q.total}</td></tr>`;
   });
   html += '</tbody></table>';
   document.getElementById('section-detail').innerHTML = html;
@@ -524,8 +553,8 @@ function renderQuestions() {
     const badge = q.rate >= 80 ? 'badge-high' : q.rate >= 50 ? 'badge-mid' : 'badge-low';
     html += `<tr>
       <td style="color:#bbb">${i + 1}</td>
-      <td style="font-size:11px;color:#888;white-space:nowrap">${q.section || '—'}</td>
-      <td style="font-size:12px;max-width:280px">${(q.text || '').substring(0, 50)}${(q.text || '').length > 50 ? '…' : ''}</td>
+      <td style="font-size:11px;color:#888;white-space:nowrap">${escHtml(q.section || '—')}</td>
+      <td style="font-size:12px;max-width:280px;line-height:1.8">${mathToHtml(q.text || '')}</td>
       <td><span class="badge ${badge}">${q.rate}%</span></td>
       <td>${q.total}</td>
     </tr>`;
