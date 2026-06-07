@@ -246,27 +246,56 @@ function normalizeRecord(r) {
   };
 }
 
-// $...$ の inline math を KaTeX でレンダリングして HTML 文字列を返す
-function mathToHtml(text) {
-  if (!text) return '';
-  var parts = String(text).split(/(\$[^$\n]+?\$)/g);
-  return parts.map(function(part) {
-    if (part.charAt(0) === '$' && part.charAt(part.length - 1) === '$' && part.length > 2) {
-      try {
-        return katex.renderToString(part.slice(1, -1), { throwOnError: false, displayMode: false });
-      } catch (e) {
-        return escHtml(part);
-      }
-    }
-    return escHtml(part);
-  }).join('');
-}
-
 function escHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// $...$ の inline math を KaTeX でレンダリングして HTML 文字列を返す。
+// 文字列を左から走査し、$ の対応を一つずつ処理する。
+// 末尾で $ が閉じていない場合（切り捨て由来）も math として描画する。
+function mathToHtml(text) {
+  if (!text) return '';
+  var s = String(text);
+  var html = '';
+  var i = 0;
+  while (i < s.length) {
+    var open = s.indexOf('$', i);
+    if (open === -1) {
+      // $ がもうない → 残りは全てプレーンテキスト
+      html += escHtml(s.slice(i));
+      break;
+    }
+    // $ より前のプレーンテキスト
+    if (open > i) {
+      html += escHtml(s.slice(i, open));
+    }
+    // 閉じ $ を探す
+    var close = s.indexOf('$', open + 1);
+    var mathStr;
+    if (close === -1) {
+      // 閉じ $ がない（テキストが途中で切り捨てられた）
+      // 残り全体を math として描画して終了
+      mathStr = s.slice(open + 1);
+      html += renderInlineMath(mathStr);
+      break;
+    }
+    mathStr = s.slice(open + 1, close);
+    html += renderInlineMath(mathStr);
+    i = close + 1;
+  }
+  return html;
+}
+
+function renderInlineMath(mathStr) {
+  if (!mathStr) return '';
+  try {
+    return katex.renderToString(mathStr, { throwOnError: false, displayMode: false });
+  } catch (e) {
+    return escHtml('$' + mathStr + '$');
+  }
 }
 
 let trendChartInstance = null;
