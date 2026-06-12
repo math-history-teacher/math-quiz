@@ -290,9 +290,12 @@
     <div class="login-form">
       <div class="form-group">
         <label>出席番号 <span style="color:#cc4444">*</span></label>
-        <input type="number" id="input-student-id" min="1" max="40" placeholder="1〜40の整数"
+        <input type="text" id="input-student-id" inputmode="numeric" maxlength="4"
+               placeholder="例：5102（5年1組2番）"
+               oninput="previewStudentId()"
                onkeydown="if(event.key==='Enter')login()" />
-        <div class="hint">1から40の整数で入力してください</div>
+        <div class="hint">学年・組・番号の順に4桁で入力（例：5102 → 5年1組2番）</div>
+        <div id="student-id-preview" style="margin-top:6px;font-size:13px;font-weight:600;min-height:20px;transition:color 0.15s;"></div>
       </div>
       <div class="form-group">
         <label>名前（任意）</label>
@@ -801,19 +804,66 @@ function renderText(el, text) {
   });
 }
 
+// ── 出席番号パーサー ──────────────────────────────────
+var GRADE_LABELS = ['', '1年（中1）', '2年（中2）', '3年（中3）', '4年（高1）', '5年（高2）', '6年（高3）'];
+
+function parseStudentId(code) {
+  var s = String(code).trim();
+  if (!/^\d{4}$/.test(s)) return null;
+  var grade = parseInt(s[0], 10);
+  var cls   = parseInt(s[1], 10);
+  var num   = parseInt(s.slice(2), 10);
+  if (grade < 1 || grade > 6) return null;
+  if (cls   < 1 || cls   > 9) return null;
+  if (num   < 1 || num   > 40) return null;
+  return {
+    grade: grade, cls: cls, num: num,
+    label: GRADE_LABELS[grade] + ' ' + cls + '組 ' + num + '番'
+  };
+}
+
+function previewStudentId() {
+  var val = document.getElementById('input-student-id').value.trim();
+  var el  = document.getElementById('student-id-preview');
+  if (val.length === 0) { el.textContent = ''; return; }
+  var parsed = parseStudentId(val);
+  if (parsed) {
+    el.textContent = '→ ' + parsed.label;
+    el.style.color = '#5060c8';
+  } else if (val.length === 4) {
+    // 4桁入力済みだがバリデーション失敗 → どこが問題かヒントを出す
+    var g = parseInt(val[0], 10), c = parseInt(val[1], 10), n = parseInt(val.slice(2), 10);
+    if (g < 1 || g > 6)  el.textContent = '1桁目（学年）は 1〜6 で入力してください';
+    else if (c < 1 || c > 9) el.textContent = '2桁目（組）は 1〜9 で入力してください';
+    else                  el.textContent = '3・4桁目（番号）は 01〜40 で入力してください';
+    el.style.color = '#cc4444';
+  } else {
+    el.textContent = '';
+  }
+}
+
 // ── ログイン ──────────────────────────────────────────
 function login() {
-  var idVal = document.getElementById('input-student-id').value.trim();
+  var idVal   = document.getElementById('input-student-id').value.trim();
   var nameVal = document.getElementById('input-student-name').value.trim();
-  var errEl = document.getElementById('login-error');
-  var id = parseInt(idVal, 10);
-  if (!idVal || isNaN(id) || id < 1 || id > 40) {
-    errEl.textContent = '出席番号は1〜40の整数で入力してください。';
+  var errEl   = document.getElementById('login-error');
+  var parsed  = parseStudentId(idVal);
+  if (!parsed) {
+    var msg = '';
+    if (!/^\d{4}$/.test(idVal)) {
+      msg = '4桁の数字で入力してください（例：5102）。';
+    } else {
+      var g = parseInt(idVal[0], 10), c = parseInt(idVal[1], 10), n = parseInt(idVal.slice(2), 10);
+      if (g < 1 || g > 6)  msg = '1桁目（学年）は 1〜6 で入力してください。';
+      else if (c < 1 || c > 9) msg = '2桁目（組）は 1〜9 で入力してください。';
+      else                  msg = '3・4桁目（番号）は 01〜40 で入力してください。';
+    }
+    errEl.textContent = msg;
     document.getElementById('input-student-id').focus();
     return;
   }
   errEl.textContent = '';
-  sessionStorage.setItem('studentId', String(id));
+  sessionStorage.setItem('studentId', idVal);        // "5102" のまま文字列で保存
   sessionStorage.setItem('studentName', nameVal);
   showScreen('top');
   buildTopPage();
