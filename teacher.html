@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学Ⅱ 先生用ダッシュボード</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', sans-serif;
+    background: #f4f5fb;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: #fff;
+    border-bottom: 1.5px solid #e0e3f5;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+  .header .sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .reload-btn {
+    padding: 7px 16px; font-size: 13px; font-weight: 600;
+    background: #eef0fb; color: #5060c8;
+    border: 1px solid #c8cce8; border-radius: 8px;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .reload-btn:hover { background: #e0e4f8; }
+
+  /* TABS */
+  .tabs {
+    background: #fff;
+    border-bottom: 1.5px solid #e0e3f5;
+    display: flex;
+    padding: 0 24px;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 14px 20px; font-size: 14px; font-weight: 600;
+    color: #aaa; background: none; border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .tab-btn:hover { color: #5060c8; }
+  .tab-btn.active { color: #5060c8; border-bottom-color: #5060c8; }
+
+  /* CONTENT */
+  .content { max-width: 1000px; margin: 0 auto; padding: 28px 20px 60px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* LOADING / EMPTY */
+  .spinner {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 14px;
+    padding: 80px 0; color: #aaa; font-size: 14px;
+  }
+  .spinner-ring {
+    width: 40px; height: 40px;
+    border: 4px solid #e0e3f5;
+    border-top-color: #5060c8;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 80px 0; color: #bbb; font-size: 14px; }
+
+  /* CARD */
+  .card {
+    background: #fff; border: 1px solid #e0e3f5;
+    border-radius: 16px; padding: 24px; margin-bottom: 20px;
+  }
+  .card-title { font-size: 14px; font-weight: 700; color: #5060c8; margin-bottom: 16px; letter-spacing: 0.5px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #f4f5fb; padding: 10px 14px;
+    text-align: left; font-size: 11px; font-weight: 700;
+    color: #888; letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 1.5px solid #e0e3f5; white-space: nowrap;
+  }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: #5060c8; }
+  td { padding: 11px 14px; border-bottom: 1px solid #f0f1f8; color: #333; }
+  tr:hover td { background: #fafbff; }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-high { background: #e8f5ee; color: #1a7a3a; }
+  .badge-mid  { background: #fff8e0; color: #a07800; }
+  .badge-low  { background: #fdeaea; color: #cc3333; }
+
+  /* CHART AREA */
+  .chart-box { position: relative; width: 100%; }
+  .chart-box canvas { max-height: 320px; width: 100% !important; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35); z-index: 200;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 20px;
+    padding: 28px; width: 100%; max-width: 640px;
+    max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-header h2 { font-size: 17px; font-weight: 700; }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #f4f5fb; border: none; cursor: pointer;
+    font-size: 18px; color: #888; line-height: 32px; text-align: center;
+  }
+  .modal-close:hover { background: #e0e4f8; color: #5060c8; }
+
+  /* FILTER */
+  .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-btn {
+    padding: 6px 14px; font-size: 12px; font-weight: 600;
+    background: #f4f5fb; color: #888;
+    border: 1px solid #e0e3f5; border-radius: 20px;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: #7080d8; color: #5060c8; }
+  .filter-btn.active { background: #eef0fb; color: #5060c8; border-color: #7080d8; }
+
+  /* SECTION SELECT */
+  .section-select {
+    padding: 8px 12px; font-size: 13px;
+    border: 1px solid #e0e3f5; border-radius: 8px;
+    background: #f8f9fe; color: #333;
+    font-family: inherit; cursor: pointer; outline: none;
+  }
+  .section-select:focus { border-color: #5060c8; }
+
+  /* KaTeX */
+  .katex { font-size: 0.95em; }
+  .katex-display { display: inline; margin: 0; }
+
+  /* ── レスポンシブ（600px 以下） ─────────────────────── */
+  @media (max-width: 600px) {
+    /* ヘッダー */
+    .header { padding: 0 14px; height: 52px; }
+    .header h1 { font-size: 14px; }
+    .header .sub { display: none; }
+    .reload-btn { padding: 6px 10px; font-size: 12px; }
+
+    /* タブ：横スクロール（flex-shrink:0 は既に設定済み） */
+    .tabs { padding: 0 10px; }
+    .tab-btn { padding: 12px 14px; font-size: 12px; }
+
+    /* コンテンツ */
+    .content { padding: 16px 12px 60px; }
+    .card { padding: 16px 14px; }
+
+    /* テーブル */
+    th { padding: 8px 10px; font-size: 10px; }
+    td { padding: 9px 10px; font-size: 12px; }
+
+    /* グラフ */
+    .chart-box canvas { max-height: 220px; }
+
+    /* モーダル */
+    .modal { padding: 20px 16px; border-radius: 14px; }
+    .modal-header h2 { font-size: 15px; }
+
+    /* フィルターボタン */
+    .filter-btn { padding: 5px 10px; font-size: 11px; }
+
+    /* セクションセレクト */
+    .section-select { font-size: 12px; width: 100%; }
+
+    /* バッジ */
+    .badge { font-size: 10px; padding: 2px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="h1">
+      <h1>先生用ダッシュボード</h1>
+    </div>
+    <div class="sub">数学Ⅱ 確認クイズ</div>
+  </div>
+  <button class="reload-btn" onclick="loadData()">🔄 データ更新</button>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('students')">👥 生徒一覧</button>
+  <button class="tab-btn" onclick="switchTab('sections')">📊 単元別分析</button>
+  <button class="tab-btn" onclick="switchTab('questions')">📋 問題別正解率</button>
+  <button class="tab-btn" onclick="switchTab('trend')">📈 クラス全体推移</button>
+</div>
+
+<div class="content">
+
+  <!-- TAB1: 生徒一覧 -->
+  <div id="tab-students" class="tab-panel active">
+    <div id="students-content"></div>
+  </div>
+
+  <!-- TAB2: 単元別分析 -->
+  <div id="tab-sections" class="tab-panel">
+    <div id="sections-content"></div>
+  </div>
+
+  <!-- TAB3: 問題別正解率 -->
+  <div id="tab-questions" class="tab-panel">
+    <div id="questions-content"></div>
+  </div>
+
+  <!-- TAB4: クラス全体推移 -->
+  <div id="tab-trend" class="tab-panel">
+    <div id="trend-content"></div>
+  </div>
+
+</div>
+
+<!-- 生徒詳細モーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-body">
+    <div class="modal-header">
+      <h2 id="modal-title">生徒詳細</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz2ibmRr52ieRLVnEzCQPwakQS99z-vCnzoPcik-059-hGskZligAcoxFGhenzh8RGT/exec';
+
+let allRecords = [];
+
+// GAS から受け取ったレコードを型安全に正規化する
+function normalizeRecord(r) {
+  // timestamp: 文字列・Date・シリアル値いずれにも対応
+  let ts = r.timestamp || '';
+  if (typeof ts === 'number') {
+    // GAS シリアル値（1900-01-01 起点のシリアル）の場合
+    ts = new Date((ts - 25569) * 86400 * 1000).toISOString();
+  }
+  // ISO 文字列として Date が生成できるか確認
+  const tsDate = new Date(ts);
+  const tsStr = isNaN(tsDate.getTime()) ? '' : tsDate.toISOString();
+
+  return {
+    timestamp:      tsStr,
+    studentId:      Number(r.studentId)      || 0,
+    studentName:    String(r.studentName     || ''),
+    sections:       Array.isArray(r.sections) ? r.sections : (r.sections ? String(r.sections).split(',').filter(Boolean) : []),
+    totalQuestions: Number(r.totalQuestions) || 0,
+    correctCount:   Number(r.correctCount)   || 0,
+    scorePercent:   Number(r.scorePercent)   || 0,
+    details:        Array.isArray(r.details) ? r.details : []
+  };
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// $...$ の inline math を KaTeX でレンダリングして HTML 文字列を返す。
+// 文字列を左から走査し、$ の対応を一つずつ処理する。
+// 末尾で $ が閉じていない場合（切り捨て由来）も math として描画する。
+function mathToHtml(text) {
+  if (!text) return '';
+  var s = String(text);
+  var html = '';
+  var i = 0;
+  while (i < s.length) {
+    var open = s.indexOf('$', i);
+    if (open === -1) {
+      // $ がもうない → 残りは全てプレーンテキスト
+      html += escHtml(s.slice(i));
+      break;
+    }
+    // $ より前のプレーンテキスト
+    if (open > i) {
+      html += escHtml(s.slice(i, open));
+    }
+    // 閉じ $ を探す
+    var close = s.indexOf('$', open + 1);
+    var mathStr;
+    if (close === -1) {
+      // 閉じ $ がない（テキストが途中で切り捨てられた）
+      // 残り全体を math として描画して終了
+      mathStr = s.slice(open + 1);
+      html += renderInlineMath(mathStr);
+      break;
+    }
+    mathStr = s.slice(open + 1, close);
+    html += renderInlineMath(mathStr);
+    i = close + 1;
+  }
+  return html;
+}
+
+function renderInlineMath(mathStr) {
+  if (!mathStr) return '';
+  try {
+    return katex.renderToString(mathStr, { throwOnError: false, displayMode: false });
+  } catch (e) {
+    return escHtml('$' + mathStr + '$');
+  }
+}
+
+let trendChartInstance = null;
+let sectionChartInstance = null;
+let questionChartInstance = null;
+let studentChartInstance = null;
+let studentSectionChartInstance = null;
+
+// ── 出席番号パーサー ──────────────────────────────────
+var GRADE_LABELS = ['', '1年（中1）', '2年（中2）', '3年（中3）', '4年（高1）', '5年（高2）', '6年（高3）'];
+
+function parseStudentId(code) {
+  var s = String(code).trim();
+  if (!/^\d{4}$/.test(s)) return null;
+  var grade = parseInt(s[0], 10);
+  var cls   = parseInt(s[1], 10);
+  var num   = parseInt(s.slice(2), 10);
+  if (grade < 1 || grade > 6) return null;
+  if (cls   < 1 || cls   > 9) return null;
+  if (num   < 1 || num   > 40) return null;
+  return {
+    grade: grade, cls: cls, num: num,
+    label: GRADE_LABELS[grade] + ' ' + cls + '組 ' + num + '番'
+  };
+}
+
+function formatStudentId(code) {
+  var parsed = parseStudentId(code);
+  return parsed ? parsed.label : '—';
+}
+
+// ── タブ切り替え ──────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  renderTab(name);
+}
+
+// ── データ取得 ────────────────────────────────────────
+function loadData() {
+  showSpinner('students-content');
+  showSpinner('sections-content');
+  showSpinner('questions-content');
+  showSpinner('trend-content');
+
+  if (!GAS_URL || GAS_URL === 'ここにGASのURLを貼る') {
+    allRecords = getSampleData().map(normalizeRecord);
+    renderAllTabs();
+    return;
+  }
+
+  fetch(GAS_URL + '?action=getAll')
+    .then(r => r.json())
+    .then(data => {
+      allRecords = Array.isArray(data) ? data.map(normalizeRecord) : [];
+      renderAllTabs();
+    })
+    .catch(err => {
+      console.error('データ取得エラー:', err);
+      allRecords = [];
+      renderAllTabs();
+    });
+}
+
+function showSpinner(id) {
+  document.getElementById(id).innerHTML =
+    '<div class="spinner"><div class="spinner-ring"></div><div>読み込み中...</div></div>';
+}
+
+function showEmpty(id, msg) {
+  document.getElementById(id).innerHTML =
+    '<div class="empty">' + (msg || 'まだデータがありません') + '</div>';
+}
+
+function renderAllTabs() {
+  renderStudents();
+  renderSections();
+  renderQuestions();
+  renderTrend();
+}
+
+function renderTab(name) {
+  if (name === 'students') renderStudents();
+  else if (name === 'sections') renderSections();
+  else if (name === 'questions') renderQuestions();
+  else if (name === 'trend') renderTrend();
+}
+
+// ── タブ1: 生徒一覧 ───────────────────────────────────
+function renderStudents() {
+  const el = document.getElementById('students-content');
+  if (!allRecords.length) { showEmpty('students-content'); return; }
+
+  const map = {};
+  allRecords.forEach(r => {
+    const id = String(r.studentId);
+    if (!map[id]) map[id] = { id, name: r.studentName, records: [] };
+    if (r.studentName) map[id].name = r.studentName;
+    map[id].records.push(r);
+  });
+
+  // 4桁コード順（学年→組→番号）で数値ソート
+  const rows = Object.values(map).sort((a, b) => Number(a.id) - Number(b.id));
+
+  let html = '<div class="card"><div class="table-wrap"><table>';
+  html += '<thead><tr>';
+  html += '<th>出席番号</th>';
+  html += '<th>学年・組・番</th>';
+  html += '<th>名前</th>';
+  html += '<th>受験回数</th>';
+  html += '<th>最新正答率</th>';
+  html += '<th>最高正答率</th>';
+  html += '<th>最終受験日時</th>';
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(s => {
+    const scores = s.records.map(r => Number(r.scorePercent));
+    const latest = scores[scores.length - 1];
+    const best = Math.max(...scores);
+    const lastTime = s.records.map(r => r.timestamp).sort().pop();
+    const dateStr = lastTime ? new Date(lastTime).toLocaleString('ja-JP', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const badge = latest >= 80 ? 'badge-high' : latest >= 50 ? 'badge-mid' : 'badge-low';
+    const decoded = formatStudentId(s.id);
+    html += `<tr style="cursor:pointer" onclick="openStudentModal('${s.id}')">`;
+    html += `<td><strong>${s.id}</strong></td>`;
+    html += `<td style="white-space:nowrap;color:#5060c8;font-size:12px">${decoded}</td>`;
+    html += `<td>${escHtml(s.name || '—')}</td>`;
+    html += `<td>${s.records.length}回</td>`;
+    html += `<td><span class="badge ${badge}">${latest}%</span></td>`;
+    html += `<td>${best}%</td>`;
+    html += `<td style="white-space:nowrap">${dateStr}</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div></div>';
+  el.innerHTML = html;
+}
+
+// ── 生徒詳細モーダル ──────────────────────────────────
+function openStudentModal(studentId) {
+  const records = allRecords.filter(r => String(r.studentId) === String(studentId)).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  if (!records.length) return;
+
+  const name = records[records.length - 1].studentName || ('出席番号 ' + studentId);
+  document.getElementById('modal-title').textContent = name + ' の詳細';
+
+  // 正答率推移
+  const labels = records.map((r, i) => '第' + (i + 1) + '回');
+  const scores = records.map(r => Number(r.scorePercent));
+
+  // 単元別正答率
+  const sectionMap = {};
+  records.forEach(r => {
+    if (!Array.isArray(r.details)) return;
+    r.details.forEach(d => {
+      if (!d.section) return;
+      if (!sectionMap[d.section]) sectionMap[d.section] = { ok: 0, total: 0 };
+      sectionMap[d.section].total++;
+      if (d.correct) sectionMap[d.section].ok++;
+    });
+  });
+  const secLabels = Object.keys(sectionMap);
+  const secScores = secLabels.map(s => sectionMap[s].total > 0 ? Math.round(sectionMap[s].ok / sectionMap[s].total * 100) : 0);
+
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `
+    <div class="card-title" style="margin-bottom:8px">正答率の推移</div>
+    <div class="chart-box" style="margin-bottom:24px"><canvas id="student-line-chart"></canvas></div>
+    <div class="card-title" style="margin-bottom:8px">単元別正答率（累計）</div>
+    <div class="chart-box"><canvas id="student-section-chart"></canvas></div>
+  `;
+
+  document.getElementById('modal-overlay').classList.add('open');
+
+  // destroy old instances
+  if (studentChartInstance) { studentChartInstance.destroy(); studentChartInstance = null; }
+  if (studentSectionChartInstance) { studentSectionChartInstance.destroy(); studentSectionChartInstance = null; }
+
+  setTimeout(() => {
+    studentChartInstance = new Chart(document.getElementById('student-line-chart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{ label: '正答率(%)', data: scores, borderColor: '#5060c8', backgroundColor: 'rgba(80,96,200,0.1)', tension: 0.3, fill: true, pointRadius: 5 }]
+      },
+      options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true }
+    });
+
+    if (secLabels.length > 0) {
+      studentSectionChartInstance = new Chart(document.getElementById('student-section-chart'), {
+        type: 'bar',
+        data: {
+          labels: secLabels,
+          datasets: [{ label: '正答率(%)', data: secScores, backgroundColor: 'rgba(80,96,200,0.6)', borderRadius: 6 }]
+        },
+        options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true }
+      });
+    }
+  }, 50);
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ── タブ2: 単元別分析 ──────────────────────────────────
+function renderSections() {
+  const el = document.getElementById('sections-content');
+  if (!allRecords.length) { showEmpty('sections-content'); return; }
+
+  const sectionMap = {};
+  allRecords.forEach(r => {
+    if (!Array.isArray(r.details)) return;
+    r.details.forEach(d => {
+      if (!d.section) return;
+      if (!sectionMap[d.section]) sectionMap[d.section] = { ok: 0, total: 0, questions: {} };
+      sectionMap[d.section].total++;
+      if (d.correct) sectionMap[d.section].ok++;
+      const qKey = d.questionText || '問題';
+      if (!sectionMap[d.section].questions[qKey]) sectionMap[d.section].questions[qKey] = { ok: 0, total: 0 };
+      sectionMap[d.section].questions[qKey].total++;
+      if (d.correct) sectionMap[d.section].questions[qKey].ok++;
+    });
+  });
+
+  const sLabels = Object.keys(sectionMap);
+  const sScores = sLabels.map(s => sectionMap[s].total > 0 ? Math.round(sectionMap[s].ok / sectionMap[s].total * 100) : 0);
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">単元別 クラス平均正答率</div>
+      <div class="chart-box"><canvas id="section-bar-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">単元を選んで問題ごとの正解率を確認</div>
+      <select class="section-select" id="section-select" onchange="renderSectionDetail()">
+        ${sLabels.map((s, i) => `<option value="${i}">${s}</option>`).join('')}
+      </select>
+      <div id="section-detail" style="margin-top:20px"></div>
+    </div>
+  `;
+
+  if (sectionChartInstance) { sectionChartInstance.destroy(); sectionChartInstance = null; }
+
+  setTimeout(() => {
+    sectionChartInstance = new Chart(document.getElementById('section-bar-chart'), {
+      type: 'bar',
+      data: {
+        labels: sLabels,
+        datasets: [{ label: '平均正答率(%)', data: sScores, backgroundColor: sScores.map(s => s >= 80 ? 'rgba(90,170,119,0.7)' : s >= 50 ? 'rgba(250,200,80,0.7)' : 'rgba(220,100,100,0.7)'), borderRadius: 6 }]
+      },
+      options: {
+        scales: { y: { min: 0, max: 100 } },
+        plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true
+      }
+    });
+  }, 50);
+
+  window._sectionMapForDetail = sectionMap;
+  window._sLabelsForDetail = sLabels;
+  renderSectionDetail();
+}
+
+function renderSectionDetail() {
+  const sel = document.getElementById('section-select');
+  if (!sel) return;
+  const idx = parseInt(sel.value, 10);
+  const secName = window._sLabelsForDetail[idx];
+  const secData = window._sectionMapForDetail[secName];
+  if (!secData) return;
+
+  const qs = Object.entries(secData.questions).map(([text, v]) => ({
+    text, rate: v.total > 0 ? Math.round(v.ok / v.total * 100) : 0, total: v.total
+  })).sort((a, b) => a.rate - b.rate);
+
+  let html = '<table><thead><tr><th>問題文</th><th>正解率</th><th>回答数</th></tr></thead><tbody>';
+  qs.forEach(q => {
+    const badge = q.rate >= 80 ? 'badge-high' : q.rate >= 50 ? 'badge-mid' : 'badge-low';
+    html += `<tr><td style="font-size:12px;max-width:340px;line-height:1.8">${mathToHtml(q.text)}</td><td><span class="badge ${badge}">${q.rate}%</span></td><td>${q.total}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('section-detail').innerHTML = html;
+}
+
+// ── タブ3: 問題別正解率 ───────────────────────────────
+function renderQuestions() {
+  const el = document.getElementById('questions-content');
+  if (!allRecords.length) { showEmpty('questions-content'); return; }
+
+  const qMap = {};
+  allRecords.forEach(r => {
+    if (!Array.isArray(r.details)) return;
+    r.details.forEach(d => {
+      const key = (d.section || '') + '||' + (d.questionText || '');
+      if (!qMap[key]) qMap[key] = { section: d.section, text: d.questionText, ok: 0, total: 0 };
+      qMap[key].total++;
+      if (d.correct) qMap[key].ok++;
+    });
+  });
+
+  const items = Object.values(qMap)
+    .map(q => ({ ...q, rate: q.total > 0 ? Math.round(q.ok / q.total * 100) : 0 }))
+    .sort((a, b) => a.rate - b.rate);
+
+  let html = '<div class="card"><div class="table-wrap"><table>';
+  html += '<thead><tr><th>#</th><th>単元</th><th>問題文（先頭50字）</th><th>正解率</th><th>回答数</th></tr></thead><tbody>';
+  items.forEach((q, i) => {
+    const badge = q.rate >= 80 ? 'badge-high' : q.rate >= 50 ? 'badge-mid' : 'badge-low';
+    html += `<tr>
+      <td style="color:#bbb">${i + 1}</td>
+      <td style="font-size:11px;color:#888;white-space:nowrap">${escHtml(q.section || '—')}</td>
+      <td style="font-size:12px;max-width:280px;line-height:1.8">${mathToHtml(q.text || '')}</td>
+      <td><span class="badge ${badge}">${q.rate}%</span></td>
+      <td>${q.total}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div></div>';
+  el.innerHTML = html;
+}
+
+// ── タブ4: クラス全体推移 ─────────────────────────────
+let _trendFilter = 'all';
+
+function renderTrend() {
+  const el = document.getElementById('trend-content');
+  if (!allRecords.length) { showEmpty('trend-content'); return; }
+
+  const allSections = [...new Set(allRecords.flatMap(r => r.sections || []))];
+
+  // 日付ごとの平均
+  function buildTrendData(sectionFilter) {
+    const dayMap = {};
+    allRecords.forEach(r => {
+      if (sectionFilter !== 'all') {
+        const secs = r.sections || [];
+        if (!secs.includes(sectionFilter)) return;
+      }
+      const day = r.timestamp ? r.timestamp.substring(0, 10) : '不明';
+      if (!dayMap[day]) dayMap[day] = { sum: 0, count: 0 };
+      dayMap[day].sum += Number(r.scorePercent);
+      dayMap[day].count++;
+    });
+    return Object.entries(dayMap).sort((a, b) => a[0].localeCompare(b[0])).map(([day, v]) => ({
+      day, avg: Math.round(v.sum / v.count)
+    }));
+  }
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">クラス平均正答率の推移</div>
+      <div class="filter-row" id="trend-filter-row">
+        <button class="filter-btn active" onclick="setTrendFilter('all', this)">全単元</button>
+        ${allSections.map(s => `<button class="filter-btn" onclick="setTrendFilter('${s}', this)">${s}</button>`).join('')}
+      </div>
+      <div class="chart-box"><canvas id="trend-line-chart"></canvas></div>
+    </div>
+  `;
+
+  drawTrendChart(buildTrendData('all'));
+  window._buildTrendData = buildTrendData;
+}
+
+function setTrendFilter(filter, btn) {
+  _trendFilter = filter;
+  document.querySelectorAll('#trend-filter-row .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (window._buildTrendData) drawTrendChart(window._buildTrendData(filter));
+}
+
+function drawTrendChart(data) {
+  if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
+  setTimeout(() => {
+    const canvas = document.getElementById('trend-line-chart');
+    if (!canvas) return;
+    trendChartInstance = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: data.map(d => d.day),
+        datasets: [{
+          label: 'クラス平均正答率(%)',
+          data: data.map(d => d.avg),
+          borderColor: '#5060c8',
+          backgroundColor: 'rgba(80,96,200,0.1)',
+          tension: 0.3, fill: true, pointRadius: 5
+        }]
+      },
+      options: {
+        scales: { y: { min: 0, max: 100 } },
+        plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true
+      }
+    });
+  }, 50);
+}
+
+// ── サンプルデータ（GAS未設定時の動作確認用）──────────
+function getSampleData() {
+  const sections = ['剰余の定理と因数定理', '高次方程式', '解と係数の関係（2次）', '不等式の証明'];
+  const now = new Date();
+  const records = [];
+  for (let s = 1; s <= 5; s++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - (4 - attempt) * 3);
+      const score = 40 + Math.floor(Math.random() * 50);
+      const total = 7;
+      const ok = Math.round(total * score / 100);
+      const selectedSecs = sections.slice(0, 2);
+      records.push({
+        studentId: s,
+        studentName: ['田中', '佐藤', '鈴木', '高橋', '伊藤'][s - 1],
+        timestamp: d.toISOString(),
+        sections: selectedSecs,
+        totalQuestions: total,
+        correctCount: ok,
+        scorePercent: score,
+        details: selectedSecs.flatMap(sec =>
+          Array.from({ length: 3 }, (_, i) => ({
+            section: sec,
+            questionText: sec + ' 問題' + (i + 1),
+            correct: Math.random() > 0.4
+          }))
+        ).slice(0, total)
+      });
+    }
+  }
+  return records;
+}
+
+// ── 初期化 ────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学 確認クイズ | 定期試験対策</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', sans-serif;
+    background: #ffffff;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+  .app { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* TOP */
+  .top-header { text-align: center; padding: 44px 0 32px; }
+  .top-header .logo { font-size: 11px; letter-spacing: 5px; color: #5060c8; text-transform: uppercase; margin-bottom: 14px; }
+  .top-header h1 { font-size: 30px; font-weight: 700; color: #1a1a2e; line-height: 1.3; margin-bottom: 10px; }
+  .top-header p { font-size: 14px; color: #888; }
+
+  .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 24px 0; }
+  .section-card {
+    background: #f8f9fe; border: 1.5px solid #e0e3f5;
+    border-radius: 14px; padding: 18px 20px;
+    cursor: pointer; transition: all 0.18s; position: relative; overflow: hidden;
+    user-select: none;
+  }
+  .section-card:hover { border-color: #7080d8; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(80,96,200,0.1); }
+  .section-card.selected { border-color: #5060c8; background: #eef0fb; }
+  .section-card.selected::after {
+    content: '✓'; position: absolute; top: 14px; right: 16px;
+    font-size: 15px; color: #5060c8; font-weight: 700;
+  }
+  .section-card .tag { font-size: 10px; letter-spacing: 2px; color: #7080d0; text-transform: uppercase; margin-bottom: 8px; }
+  .section-card h3 { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 5px; line-height: 1.4; }
+  .section-card p { font-size: 11px; color: #999; line-height: 1.5; }
+  .section-card .count { margin-top: 10px; font-size: 11px; color: #7080d0; }
+
+  .start-btn {
+    width: 100%; padding: 16px; font-size: 16px; font-weight: 700;
+    background: linear-gradient(135deg, #4a5cc8, #7b8de6);
+    color: #fff; border: none; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; margin-top: 6px; letter-spacing: 1px;
+    font-family: inherit;
+  }
+  .start-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(80,96,200,0.3); }
+  .start-btn:disabled { background: #e8eaf5; color: #aab; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .resume-box {
+    background: #f4f5fd; border: 1px solid #dde0f0;
+    border-radius: 12px; padding: 14px 18px;
+    margin-bottom: 18px; display: flex;
+    align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .resume-box .info { font-size: 13px; color: #666; }
+  .resume-box .info strong { color: #5060c8; }
+  .resume-btn {
+    padding: 8px 16px; font-size: 13px; font-weight: 600;
+    background: #eef0fb; color: #5060c8;
+    border: 1px solid #c8cce8; border-radius: 8px;
+    cursor: pointer; white-space: nowrap; font-family: inherit;
+    transition: background 0.15s;
+  }
+  .resume-btn:hover { background: #e0e4f8; }
+
+  /* GRADE */
+  .grade-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 24px 0; }
+  .grade-card {
+    background: #f8f9fe; border: 2px solid #e0e3f5;
+    border-radius: 16px; padding: 22px 14px;
+    cursor: pointer; transition: all 0.18s;
+    text-align: center; user-select: none;
+  }
+  .grade-card:hover { border-color: #7080d8; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(80,96,200,0.12); }
+  .grade-card.disabled {
+    opacity: 0.45; cursor: not-allowed; pointer-events: none;
+  }
+  .grade-card .gc-badge {
+    display: inline-block; font-size: 9px; letter-spacing: 1px;
+    color: #fff; background: #bbb; border-radius: 4px;
+    padding: 2px 7px; margin-bottom: 10px;
+  }
+  .grade-card.disabled .gc-badge { background: #ccc; }
+  .grade-card:not(.disabled) .gc-badge { background: #5060c8; }
+  .grade-card h2 { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; line-height: 1.3; }
+  .grade-card p { font-size: 11px; color: #999; line-height: 1.5; }
+
+  /* BACK BTN */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 7px 14px; font-size: 13px; font-weight: 600;
+    background: #f8f9fe; color: #7080d0;
+    border: 1px solid #e0e3f5; border-radius: 8px;
+    cursor: pointer; margin-bottom: 4px; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .back-btn:hover { border-color: #7080d8; color: #5060c8; }
+
+  /* QUIZ */
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .progress-wrap { flex: 1; margin-right: 16px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 7px; }
+  .progress-label span:first-child { color: #666; }
+  .progress-bar { height: 3px; background: #e8eaf5; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4a5cc8, #7b8de6); border-radius: 2px; transition: width 0.4s ease; }
+
+  .timer-box { text-align: right; flex-shrink: 0; }
+  .timer-val { font-size: 28px; font-weight: 700; color: #333; font-variant-numeric: tabular-nums; line-height: 1; }
+  .timer-val.urgent { color: #cc4444; }
+  .timer-label { font-size: 10px; color: #aaa; margin-top: 2px; }
+
+  .section-tag { font-size: 10px; letter-spacing: 3px; color: #7080d0; text-transform: uppercase; margin-bottom: 10px; }
+
+  .question-card {
+    background: #f8f9fe; border: 1px solid #e0e3f5;
+    border-radius: 18px; padding: 28px 28px 24px;
+    margin-bottom: 20px;
+  }
+  .question-num { font-size: 11px; color: #aaa; margin-bottom: 10px; }
+  .q-text { font-size: 17px; line-height: 1.85; color: #1a1a2e; font-weight: 400; white-space: pre-wrap; }
+  .q-hint {
+    margin-top: 16px; padding: 10px 14px;
+    background: #eef2fc; border-left: 3px solid #7080d0;
+    border-radius: 0 8px 8px 0;
+    font-size: 12px; color: #5060a0; line-height: 1.6;
+  }
+
+  .show-answer-btn {
+    width: 100%; padding: 15px; font-size: 15px; font-weight: 700;
+    background: #eef0fb; color: #4a5cc8;
+    border: 1.5px solid #c8cce8; border-radius: 12px;
+    cursor: pointer; transition: all 0.18s; margin-bottom: 14px;
+    font-family: inherit; letter-spacing: 0.5px;
+  }
+  .show-answer-btn:hover { background: #e0e4f8; border-color: #7080d8; }
+  .show-answer-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .answer-panel {
+    background: #f0f4fa; border: 1px solid #ccd5ea;
+    border-radius: 14px; padding: 22px 24px; margin-bottom: 14px;
+    display: none;
+  }
+  .answer-panel.visible { display: block; }
+  .answer-panel .ap-label { font-size: 10px; letter-spacing: 3px; color: #7090b0; text-transform: uppercase; margin-bottom: 12px; }
+  .answer-panel .ap-answer {
+    font-size: 16px; font-weight: 700; color: #1a3a88;
+    line-height: 2; margin-bottom: 16px;
+    padding-bottom: 14px; border-bottom: 1px solid #ccd5ea;
+    white-space: pre-wrap; word-break: break-word;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+  }
+  .answer-panel .ap-explain { font-size: 13.5px; color: #4466aa; line-height: 2; white-space: pre-wrap; word-break: break-word; font-family: 'Courier New', 'Osaka-Mono', monospace; letter-spacing: 0.02em; overflow-x: auto; }
+  .ap-section-label { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px; font-family: 'Noto Sans JP', sans-serif; }
+  .ap-label-housin { background: #e8f0fb; color: #3355aa; border: 1px solid #b0c4e8; }
+  .ap-label-shomei { background: #eaf5ee; color: #1a6a3a; border: 1px solid #a0d4b0; }
+  .ap-label-kaitou { background: #fef5e8; color: #7a5000; border: 1px solid #e0c880; }
+  .ap-block { margin-bottom: 8px; }
+
+  .self-eval { display: none; margin-bottom: 14px; }
+  .self-eval.visible { display: block; }
+  .self-eval-label { font-size: 12px; color: #999; text-align: center; margin-bottom: 10px; }
+  .eval-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .eval-btn {
+    padding: 13px; font-size: 14px; font-weight: 700;
+    border: 1.5px solid; border-radius: 10px;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .eval-btn.ok { background: #eaf6ef; border-color: #5aaa77; color: #1a7a3a; }
+  .eval-btn.ok:hover { background: #d8f0e0; border-color: #3a9a66; }
+  .eval-btn.ng { background: #fdf0f0; border-color: #dd8888; color: #cc3333; }
+  .eval-btn.ng:hover { background: #fde0e0; border-color: #cc5555; }
+  .eval-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .action-row { display: flex; gap: 10px; }
+  .save-quit-btn {
+    padding: 13px 18px; font-size: 13px; font-weight: 600;
+    background: #f8f9fe; color: #aaa;
+    border: 1px solid #e0e3f5; border-radius: 10px;
+    cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap;
+  }
+  .save-quit-btn:hover { border-color: #7080d8; color: #5060c8; }
+  .next-btn {
+    flex: 1; padding: 13px; font-size: 15px; font-weight: 700;
+    background: linear-gradient(135deg, #4a5cc8, #7b8de6);
+    color: #fff; border: none; border-radius: 10px;
+    cursor: pointer; transition: all 0.15s; display: none; font-family: inherit;
+  }
+  .next-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(80,96,200,0.3); }
+
+  /* RESULT */
+  .result-header { text-align: center; padding: 44px 0 32px; }
+  .result-score {
+    font-size: 80px; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #4a5cc8, #7b8de6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .result-label { font-size: 13px; color: #aaa; margin-top: 8px; }
+  .result-msg { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-top: 18px; }
+
+  .result-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 28px 0; }
+  .stat-card { background: #f8f9fe; border: 1px solid #e0e3f5; border-radius: 12px; padding: 16px; text-align: center; }
+  .stat-card .sv { font-size: 26px; font-weight: 700; color: #5060c8; }
+  .stat-card .sl { font-size: 11px; color: #aaa; margin-top: 5px; }
+
+  .review-section-label { font-size: 12px; color: #aaa; letter-spacing: 2px; text-transform: uppercase; margin: 8px 0 10px; }
+  .review-item {
+    background: #f8f9fe; border: 1px solid #e0e3f5; border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 8px;
+  }
+  .review-item .ri-q { font-size: 13px; color: #666; line-height: 1.5; margin-bottom: 6px; }
+  .review-item .ri-a { font-size: 12px; color: #5060a0; }
+  .review-item.ng-item { border-left: 3px solid #dd8888; }
+
+  .restart-btn {
+    width: 100%; padding: 14px; font-size: 15px; font-weight: 700;
+    background: #f8f9fe; color: #5060c8;
+    border: 1px solid #dde0f0; border-radius: 12px;
+    cursor: pointer; margin-top: 10px; transition: all 0.15s; font-family: inherit;
+  }
+  .restart-btn:hover { background: #eef0fb; }
+
+  /* LOGIN */
+  .login-wrap { text-align: center; padding: 56px 0 36px; }
+  .login-wrap .logo { font-size: 11px; letter-spacing: 5px; color: #5060c8; text-transform: uppercase; margin-bottom: 14px; }
+  .login-wrap h1 { font-size: 28px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .login-wrap > p { font-size: 14px; color: #888; margin-bottom: 36px; }
+  .login-form { max-width: 320px; margin: 0 auto; }
+  .form-group { margin-bottom: 16px; text-align: left; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #5060c8; margin-bottom: 6px; letter-spacing: 1px; }
+  .form-group input {
+    width: 100%; padding: 12px 16px; font-size: 16px;
+    border: 1.5px solid #e0e3f5; border-radius: 10px;
+    background: #f8f9fe; color: #1a1a2e; font-family: inherit;
+    transition: border-color 0.15s; outline: none;
+  }
+  .form-group input:focus { border-color: #5060c8; background: #fff; }
+  .form-group .hint { font-size: 11px; color: #bbb; margin-top: 4px; }
+  .login-error { font-size: 12px; color: #cc4444; margin-bottom: 10px; min-height: 18px; text-align: left; }
+
+  /* SEND STATUS */
+  .send-status { text-align: center; font-size: 13px; color: #7080d0; min-height: 22px; margin-bottom: 10px; }
+
+  /* ── レスポンシブ（480px 以下） ─────────────────────── */
+  @media (max-width: 480px) {
+    .app { padding: 16px 12px 60px; }
+    .top-header { padding: 30px 0 20px; }
+    .top-header h1 { font-size: 22px; }
+    .section-grid { grid-template-columns: 1fr; }
+    .section-card { padding: 14px 16px; }
+    .grade-grid { grid-template-columns: 1fr; }
+    .grade-card { padding: 18px 14px; }
+    .login-wrap { padding: 40px 0 28px; }
+    .login-wrap h1 { font-size: 22px; }
+    .login-form { max-width: 100%; }
+    .quiz-header { flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .progress-wrap { width: 100%; margin-right: 0; }
+    .timer-box { align-self: flex-end; margin-left: auto; }
+    .timer-val { font-size: 22px; }
+    .question-card { padding: 16px 14px; }
+    .q-text { font-size: 15px; }
+    .answer-panel { padding: 16px 14px; }
+    .answer-panel .ap-answer { font-size: 14px; }
+    .answer-panel .ap-explain { font-size: 12.5px; }
+    .eval-btns { gap: 8px; }
+    .eval-btn { padding: 14px 8px; font-size: 13px; }
+    .action-row { flex-direction: column; gap: 8px; }
+    .save-quit-btn { width: 100%; text-align: center; padding: 12px; }
+    .next-btn { display: block; width: 100%; }
+    .result-header { padding: 30px 0 20px; }
+    .result-score { font-size: 56px; }
+    .result-msg { font-size: 15px; }
+    .result-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 12px 8px; }
+    .stat-card .sv { font-size: 20px; }
+    .stat-card .sl { font-size: 10px; }
+    .review-item { padding: 12px; }
+    .review-item .ri-q { font-size: 12px; }
+    .review-item .ri-a { font-size: 11px; }
+  }
+
+  /* KaTeX */
+  .katex { font-size: 1em; }
+  .katex-display { margin: 0.3em 0; overflow-x: auto; }
+  .ap-explain .katex { font-size: 0.95em; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="logo">数学 定期試験対策</div>
+    <h1>確認クイズ</h1>
+    <p>出席番号を入力してスタートしよう</p>
+    <div class="login-form">
+      <div class="form-group">
+        <label>出席番号 <span style="color:#cc4444">*</span></label>
+        <input type="text" id="input-student-id" inputmode="numeric" maxlength="4"
+               placeholder="例：5102（5年1組2番）"
+               oninput="previewStudentId()"
+               onkeydown="if(event.key==='Enter')login()" />
+        <div class="hint">学年・組・番号の順に4桁で入力（例：5102 → 5年1組2番）</div>
+        <div id="student-id-preview" style="margin-top:6px;font-size:13px;font-weight:600;min-height:20px;transition:color 0.15s;"></div>
+      </div>
+      <div class="form-group">
+        <label>名前（任意）</label>
+        <input type="text" id="input-student-name" placeholder="省略可" maxlength="20"
+               onkeydown="if(event.key==='Enter')login()" />
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <button class="start-btn" onclick="login()">スタート →</button>
+    </div>
+  </div>
+</div>
+
+<!-- GRADE SELECT -->
+<div id="screen-grade" class="screen">
+  <div class="top-header">
+    <div class="logo">数学 定期試験対策</div>
+    <h1>学年を選択</h1>
+    <p id="grade-student-label">あなたの学年を選んでください</p>
+  </div>
+  <div class="grade-grid" id="grade-grid"></div>
+  <button class="restart-btn" onclick="showScreen('login')">← ログインに戻る</button>
+</div>
+
+<!-- TOP -->
+<div id="screen-top" class="screen">
+  <button class="back-btn" onclick="goGrade()">← 学年選択に戻る</button>
+  <div class="top-header">
+    <div class="logo" id="top-logo">数学 定期試験対策</div>
+    <h1 id="top-title">確認クイズ</h1>
+    <p>単元を選んで、ノートで解いて、答え合わせしよう</p>
+  </div>
+  <div id="resume-area"></div>
+  <div class="section-grid" id="section-grid"></div>
+  <button class="start-btn" id="start-btn" disabled onclick="startQuiz()">選択した単元でスタート →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">問題 1 / 10</span>
+        <span id="eval-text"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="timer-box">
+      <div class="timer-val" id="timer-val">—</div>
+      <div class="timer-label">秒</div>
+    </div>
+  </div>
+
+  <div class="section-tag" id="q-section"></div>
+
+  <div class="question-card">
+    <div class="question-num" id="q-num"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-hint" id="q-hint" style="display:none"></div>
+  </div>
+
+  <button class="show-answer-btn" id="show-answer-btn" onclick="showAnswer()">
+    📖 解答を見る
+  </button>
+
+  <div class="answer-panel" id="answer-panel">
+    <div class="ap-label">解答・解説</div>
+    <div class="ap-answer" id="ap-answer"></div>
+    <div class="ap-explain" id="ap-explain"></div>
+  </div>
+
+  <div class="self-eval" id="self-eval">
+    <div class="self-eval-label">自己採点 — どちらでしたか？</div>
+    <div class="eval-btns">
+      <button class="eval-btn ok" onclick="evalAnswer(true)">⭕ 正解！</button>
+      <button class="eval-btn ng" onclick="evalAnswer(false)">✕ 間違えた</button>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="save-quit-btn" onclick="saveAndQuit()">💾 保存して終了</button>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">次の問題 →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="result-header">
+    <div class="result-score" id="result-score">0点</div>
+    <div class="result-label">/ 100点（自己採点）</div>
+    <div class="result-msg" id="result-msg"></div>
+  </div>
+  <div class="result-stats">
+    <div class="stat-card"><div class="sv" id="s-ok">0</div><div class="sl">⭕ 正解</div></div>
+    <div class="stat-card"><div class="sv" id="s-total">0</div><div class="sl">全問題数</div></div>
+    <div class="stat-card"><div class="sv" id="s-time">0分</div><div class="sl">所要時間</div></div>
+  </div>
+  <div class="review-section-label">要復習リスト</div>
+  <div id="review-list"></div>
+  <div class="send-status" id="send-status"></div>
+  <button class="restart-btn" onclick="goTop()">← 単元選択に戻る</button>
+</div>
+
+</div>
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz2ibmRr52ieRLVnEzCQPwakQS99z-vCnzoPcik-059-hGskZligAcoxFGhenzh8RGT/exec';
+
+// ── 学年・単元データ ──────────────────────────────────
+const GRADE_DATA = [
+  {
+    id: 'grade3',
+    name: '中学3年',
+    subtitle: '平方根 確認クイズ',
+    tag: '中3数学 定期試験対策',
+    disabled: false,
+    sections: [
+      {
+        id: 'square_root_basics', tag: '中学3年 第2章', name: '平方根の基礎', desc: '平方根の意味と大小関係',
+        questions: [
+          {
+            text: '次の数の平方根を求めよ。\n(1) $25$ (2) $1$ (3) $81$ (4) $49$\n(5) $\\dfrac{9}{16}$ (6) $\\dfrac{1}{4}$ (7) $0.36$ (8) $0.09$',
+            hint: '2乗してその数になる数を考える。正の数の平方根は正・負の2つある。',
+            answer: '(1) $\\pm 5$ (2) $\\pm 1$ (3) $\\pm 9$ (4) $\\pm 7$\n(5) $\\pm\\dfrac{3}{4}$ (6) $\\pm\\dfrac{1}{2}$ (7) $\\pm 0.6$ (8) $\\pm 0.3$',
+            explain: '【方針】\n2乗するとaになる数をaの平方根という。\n正の数の平方根は正・負の2つある。\n\n【解法】\n(1) $5^2=25,\\ (-5)^2=25$ → $\\pm 5$\n(2) $1^2=1$ → $\\pm 1$\n(3) $9^2=81$ → $\\pm 9$\n(4) $7^2=49$ → $\\pm 7$\n(5) $\\left(\\dfrac{3}{4}\\right)^2=\\dfrac{9}{16}$ → $\\pm\\dfrac{3}{4}$\n(6) $\\left(\\dfrac{1}{2}\\right)^2=\\dfrac{1}{4}$ → $\\pm\\dfrac{1}{2}$\n(7) $0.6^2=0.36$ → $\\pm 0.6$\n(8) $0.3^2=0.09$ → $\\pm 0.3$',
+            time: 90
+          },
+          {
+            text: '$(\\sqrt{5})^2$ の値と $(-\\sqrt{5})^2$ の値を求めよ。',
+            hint: '$(\\sqrt{a})^2=a$ の定義を使う。',
+            answer: 'どちらも $5$',
+            explain: '【方針】\n$\\sqrt{a}$ は「2乗するとaになる正の数」なので $(\\sqrt{a})^2=a$\n\n【解法】\n$(\\sqrt{5})^2 = 5$\n$(-\\sqrt{5})^2 = (-1)^2 \\times (\\sqrt{5})^2 = 5$',
+            time: 30
+          },
+          {
+            text: '次の数を $\\sqrt{}$ を使わずに表せ。\n(1) $\\sqrt{49}$ (2) $-\\sqrt{64}$ (3) $\\sqrt{0.25}$ (4) $-\\sqrt{\\dfrac{9}{16}}$',
+            hint: '根号の中が何かの2乗になっているか確認する。$\\sqrt{a^2}=a\\ (a>0)$',
+            answer: '(1) $7$ (2) $-8$ (3) $0.5$ (4) $-\\dfrac{3}{4}$',
+            explain: '【方針】\n$\\sqrt{a^2}=a\\ (a>0)$ を使って根号を外す。\n\n【解法】\n(1) $\\sqrt{49}=\\sqrt{7^2}=7$\n(2) $-\\sqrt{64}=-\\sqrt{8^2}=-8$\n(3) $\\sqrt{0.25}=\\sqrt{0.5^2}=0.5$\n(4) $-\\sqrt{\\dfrac{9}{16}}=-\\sqrt{\\left(\\dfrac{3}{4}\\right)^2}=-\\dfrac{3}{4}$',
+            time: 60
+          },
+          {
+            text: '次の各組の大小を不等号で表せ。\n(1) $3$ と $\\sqrt{10}$\n(2) $\\sqrt{0.5}$ と $0.5$\n(3) $-\\sqrt{3}$ と $-\\sqrt{2}$\n(4) $-\\sqrt{7}$ と $-7$',
+            hint: '正の数は2乗して比較。負の数は絶対値が大きいほど小さい。',
+            answer: '(1) $3 < \\sqrt{10}$ (2) $\\sqrt{0.5} > 0.5$ (3) $-\\sqrt{3} < -\\sqrt{2}$ (4) $-\\sqrt{7} > -7$',
+            explain: '【方針】\n$a>0, b>0$ のとき $a<b \\Leftrightarrow \\sqrt{a}<\\sqrt{b}$\n負の数は絶対値が大きいほど小さい。\n\n【解法】\n(1) $3=\\sqrt{9},\\ 9<10$ だから $\\sqrt{9}<\\sqrt{10}$ よって $3<\\sqrt{10}$\n(2) $0.5=\\sqrt{0.25},\\ 0.25<0.5$ だから $0.5<\\sqrt{0.5}$\n(3) 絶対値 $\\sqrt{3}>\\sqrt{2}$ なので $-\\sqrt{3}<-\\sqrt{2}$\n(4) $\\sqrt{7}\\approx 2.6 < 7$ なので $-\\sqrt{7}>-7$',
+            time: 90
+          },
+          {
+            text: '次のア〜エから正しいものをすべて選べ。\nア: $-20$ は $400$ の平方根のうち負の方である。\nイ: $10$ の平方根を $\\sqrt{}$ で表すと $\\pm\\sqrt{10}$\nウ: $\\sqrt{81}$ を $\\sqrt{}$ を使わずに表すと $\\pm 9$\nエ: $(-\\sqrt{6})^2$ の値は $6$',
+            hint: '$\\sqrt{81}=9$（根号は正の値のみ）であることに注意。',
+            answer: 'ア・イ・エ（ウは誤り：$\\sqrt{81}=9$ であり $\\pm 9$ ではない）',
+            explain: '【方針】\n平方根の定義と根号の意味を正確に確認する。\n\n【解法】\nア: $(-20)^2=400$ ✓ 正しい\nイ: $10$ の平方根は $\\pm\\sqrt{10}$ ✓ 正しい\nウ: $\\sqrt{81}=9$（根号は正の値のみ）✗ 誤り\nエ: $(-\\sqrt{6})^2=6$ ✓ 正しい\n\nよって正しいのは ア・イ・エ',
+            time: 60
+          },
+          {
+            text: '次の数を小さい順に並べよ。\n$0,\\ -\\sqrt{5},\\ \\sqrt{3},\\ -\\sqrt{2},\\ \\sqrt{6}$',
+            hint: '負の数どうし、正の数どうしで比較してから順番に並べる。',
+            answer: '$-\\sqrt{5} < -\\sqrt{2} < 0 < \\sqrt{3} < \\sqrt{6}$',
+            explain: '【方針】\n負の数は絶対値が大きいほど小さい。\n正の数は根号の中が大きいほど大きい。\n\n【解法】\n負: $\\sqrt{5}>\\sqrt{2}$ なので $-\\sqrt{5}<-\\sqrt{2}$\n正: $3<6$ なので $\\sqrt{3}<\\sqrt{6}$\nまとめ: $-\\sqrt{5} < -\\sqrt{2} < 0 < \\sqrt{3} < \\sqrt{6}$',
+            time: 60
+          },
+          {
+            text: '$\\sqrt{a} < 2$ となる自然数 $a$ をすべて求めよ。',
+            hint: '$\\sqrt{a}<2$ → 両辺2乗して $a<4$',
+            answer: '$a=1, 2, 3$',
+            explain: '【方針】\n$\\sqrt{a}<2$ の両辺を2乗する（両辺正なので不等号の向き不変）。\n\n【解法】\n$\\sqrt{a} < 2$\n$a < 4$\n自然数 $a$ は $a=1, 2, 3$',
+            time: 50
+          }
+        ]
+      },
+      {
+        id: 'sqrt_values', tag: '中学3年 第2章', name: '平方根の値・有理数と無理数', desc: '近似値・有理数と無理数の分類',
+        questions: [
+          {
+            text: '$\\sqrt{2}$ を小数で表したとき小数第2位の数を求めよ。（$1.41^2$ と $1.42^2$ を計算して示す）',
+            hint: '1.41² と 1.42² を計算し，2 との大小を比べる。',
+            answer: '$4$（$\\sqrt{2}\\approx 1.41\\ldots$ なので小数第2位は $4$）',
+            explain: '【方針】\n1.41² と 1.42² を計算し，2 を挟む範囲を求める。\n\n【解法】\n$1.41^2 = 1.9881$\n$1.42^2 = 2.0164$\n$1.9881 < 2 < 2.0164$\nよって $1.41 < \\sqrt{2} < 1.42$\nしたがって小数第2位の数は $4$',
+            time: 90
+          },
+          {
+            text: '次の数を有理数と無理数に分けよ。\n$0.1,\\ -\\sqrt{7},\\ -5,\\ \\sqrt{16},\\ \\sqrt{\\dfrac{4}{9}},\\ -\\sqrt{2}$',
+            hint: '分数 $\\dfrac{m}{n}$ の形で表せるかどうかで判断する。$\\sqrt{16}=4$，$\\sqrt{\\dfrac{4}{9}}=\\dfrac{2}{3}$ に注意。',
+            answer: '有理数：$0.1,\\ -5,\\ \\sqrt{16}(=4),\\ \\sqrt{\\dfrac{4}{9}}\\left(=\\dfrac{2}{3}\\right)$\n無理数：$-\\sqrt{7},\\ -\\sqrt{2}$',
+            explain: '【方針】\n有理数＝分数 $\\dfrac{m}{n}$ の形で表せる数。\n無理数＝分数で表せない数。\n\n【解法】\n$0.1 = \\dfrac{1}{10}$ → 有理数\n$-\\sqrt{7}$ → 無理数\n$-5 = -\\dfrac{5}{1}$ → 有理数\n$\\sqrt{16} = 4$ → 有理数\n$\\sqrt{\\dfrac{4}{9}} = \\dfrac{2}{3}$ → 有理数\n$-\\sqrt{2}$ → 無理数',
+            time: 60
+          },
+          {
+            text: 'ある数 $a$ の小数第2位を四捨五入した近似値が $1.6$ のとき，$a$ の範囲を不等号で表せ。',
+            hint: '四捨五入して $1.6$ になる範囲を考える。',
+            answer: '$1.55 \\leqq a < 1.65$',
+            explain: '【方針】\n四捨五入して $1.6$ になる → 小数第2位が $0$〜$4$ なら切り捨て，$5$〜$9$ なら切り上げ。\n\n【解法】\n$1.55$ 以上 $1.65$ 未満の数を四捨五入すると $1.6$ になる。\nよって $1.55 \\leqq a < 1.65$',
+            time: 60
+          },
+          {
+            text: '面積が $18\\,\\text{m}^2$ の正方形の花だんの1辺の長さを小数第2位まで求めよ。（$\\sqrt{2}=1.41$ を使う）',
+            hint: '1辺を $x$ とすると $x^2=18$。$\\sqrt{18}$ を簡単にしてから $\\sqrt{2}$ の値を代入。',
+            answer: '約 $4.23\\,\\text{m}$',
+            explain: '【方針】\n1辺を $x\\,\\text{m}$ とすると $x^2=18$ → $x=\\sqrt{18}$（$x>0$）\n\n【解法】\n$\\sqrt{18} = \\sqrt{9\\times 2} = 3\\sqrt{2}$\n$= 3 \\times 1.41 = 4.23$\nよって約 $4.23\\,\\text{m}$',
+            time: 75
+          }
+        ]
+      },
+      {
+        id: 'sqrt_mult_div', tag: '中学3年 第2章', name: '根号をふくむ式の乗法・除法', desc: '√の積・商・変形・有理化',
+        questions: [
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{6}\\times\\sqrt{5}$ (2) $\\sqrt{10}\\times\\sqrt{40}$ (3) $\\sqrt{7}\\times(-\\sqrt{2})$\n(4) $\\sqrt{39}\\div\\sqrt{3}$ (5) $\\sqrt{45}\\div\\sqrt{5}$ (6) $(-\\sqrt{14})\\div\\sqrt{12}$',
+            hint: '$\\sqrt{a}\\times\\sqrt{b}=\\sqrt{ab}$，$\\sqrt{a}\\div\\sqrt{b}=\\sqrt{\\dfrac{a}{b}}$ を使う。',
+            answer: '(1) $\\sqrt{30}$ (2) $20$ (3) $-\\sqrt{14}$\n(4) $\\sqrt{13}$ (5) $3$ (6) $-\\dfrac{\\sqrt{42}}{6}$',
+            explain: '【方針】\n$\\sqrt{a}\\times\\sqrt{b}=\\sqrt{ab}$，$\\sqrt{a}\\div\\sqrt{b}=\\sqrt{\\dfrac{a}{b}}$ の公式を使う。\n\n【解法】\n(1) $\\sqrt{6}\\times\\sqrt{5}=\\sqrt{30}$\n(2) $\\sqrt{10}\\times\\sqrt{40}=\\sqrt{400}=20$\n(3) $\\sqrt{7}\\times(-\\sqrt{2})=-\\sqrt{14}$\n(4) $\\sqrt{39}\\div\\sqrt{3}=\\sqrt{\\dfrac{39}{3}}=\\sqrt{13}$\n(5) $\\sqrt{45}\\div\\sqrt{5}=\\sqrt{\\dfrac{45}{5}}=\\sqrt{9}=3$\n(6) $(-\\sqrt{14})\\div\\sqrt{12}=-\\sqrt{\\dfrac{14}{12}}=-\\sqrt{\\dfrac{7}{6}}=-\\dfrac{\\sqrt{42}}{6}$',
+            time: 120
+          },
+          {
+            text: '次の数を $\\sqrt{a}$ の形にせよ。\n(1) $2\\sqrt{2}$ (2) $3\\sqrt{3}$ (3) $\\dfrac{\\sqrt{18}}{3}$',
+            hint: '$a\\sqrt{b}=\\sqrt{a^2 b}$ を使う。',
+            answer: '(1) $\\sqrt{8}$ (2) $\\sqrt{27}$ (3) $\\sqrt{2}$',
+            explain: '【方針】\n$a\\sqrt{b} = \\sqrt{a^2\\times b}$ を使って $\\sqrt{a}$ の形に変形する。\n\n【解法】\n(1) $2\\sqrt{2}=\\sqrt{4\\times 2}=\\sqrt{8}$\n(2) $3\\sqrt{3}=\\sqrt{9\\times 3}=\\sqrt{27}$\n(3) $\\dfrac{\\sqrt{18}}{3}=\\dfrac{\\sqrt{18}}{\\sqrt{9}}=\\sqrt{\\dfrac{18}{9}}=\\sqrt{2}$',
+            time: 60
+          },
+          {
+            text: '次の $\\sqrt{}$ の中をできるだけ簡単な数にせよ。\n(1) $\\sqrt{20}$ (2) $\\sqrt{\\dfrac{5}{64}}$ (3) $\\sqrt{300}$ (4) $\\sqrt{0.02}$',
+            hint: '$\\sqrt{a^2 b}=a\\sqrt{b}$ を使う。素因数分解が有効。',
+            answer: '(1) $2\\sqrt{5}$ (2) $\\dfrac{\\sqrt{5}}{8}$ (3) $10\\sqrt{3}$ (4) $\\dfrac{\\sqrt{2}}{10}$',
+            explain: '【方針】\n根号の中を素因数分解して，平方数を外に出す。\n\n【解法】\n(1) $\\sqrt{20}=\\sqrt{4\\times 5}=2\\sqrt{5}$\n(2) $\\sqrt{\\dfrac{5}{64}}=\\dfrac{\\sqrt{5}}{8}$\n(3) $\\sqrt{300}=\\sqrt{100\\times 3}=10\\sqrt{3}$\n(4) $\\sqrt{0.02}=\\sqrt{\\dfrac{2}{100}}=\\dfrac{\\sqrt{2}}{10}$',
+            time: 90
+          },
+          {
+            text: '次の数の分母を有理化せよ。\n(1) $\\dfrac{1}{\\sqrt{6}}$ (2) $\\dfrac{\\sqrt{3}}{\\sqrt{5}}$ (3) $\\dfrac{9}{\\sqrt{18}}$',
+            hint: '分母と分子に同じ $\\sqrt{}$ をかけて分母から根号を消す。',
+            answer: '(1) $\\dfrac{\\sqrt{6}}{6}$ (2) $\\dfrac{\\sqrt{15}}{5}$ (3) $\\dfrac{3\\sqrt{2}}{2}$',
+            explain: '【方針】\n分母・分子に分母の $\\sqrt{}$ をかけて有理化する。\n\n【解法】\n(1) $\\dfrac{1}{\\sqrt{6}}=\\dfrac{\\sqrt{6}}{6}$\n(2) $\\dfrac{\\sqrt{3}}{\\sqrt{5}}=\\dfrac{\\sqrt{3}\\times\\sqrt{5}}{\\sqrt{5}\\times\\sqrt{5}}=\\dfrac{\\sqrt{15}}{5}$\n(3) $\\dfrac{9}{\\sqrt{18}}=\\dfrac{9}{3\\sqrt{2}}=\\dfrac{3}{\\sqrt{2}}=\\dfrac{3\\sqrt{2}}{2}$',
+            time: 90
+          },
+          {
+            text: '$\\sqrt{3}=1.732$ として次の値を求めよ。\n(1) $\\sqrt{27}$ (2) $\\dfrac{12}{\\sqrt{3}}$',
+            hint: 'まず根号の中を簡単にしてから，$\\sqrt{3}=1.732$ を代入する。',
+            answer: '(1) $5.196$ (2) $6.928$',
+            explain: '【方針】\nまず根号を簡単にしてから $\\sqrt{3}$ の値を代入する。\n\n【解法】\n(1) $\\sqrt{27}=3\\sqrt{3}=3\\times 1.732=5.196$\n(2) $\\dfrac{12}{\\sqrt{3}}=\\dfrac{12\\sqrt{3}}{3}=4\\sqrt{3}=4\\times 1.732=6.928$',
+            time: 75
+          },
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{6}\\times 2\\sqrt{3}$ (2) $\\sqrt{18}\\div\\sqrt{8}$ (3) $\\sqrt{50}\\times\\sqrt{48}$\n(4) $\\sqrt{10}\\div\\sqrt{5}\\times(-\\sqrt{2})$ (5) $\\sqrt{24}\\div(-\\sqrt{18})\\div\\sqrt{3}$',
+            hint: '乗除を先に処理してから根号の中を整理する。',
+            answer: '(1) $6\\sqrt{2}$ (2) $\\dfrac{3}{2}$ (3) $20\\sqrt{6}$ (4) $-2$ (5) $-\\dfrac{2}{3}$',
+            explain: '【方針】\nまとめて計算するか，順番に処理する。\n\n【解法】\n(1) $\\sqrt{6}\\times 2\\sqrt{3}=2\\sqrt{18}=6\\sqrt{2}$\n(2) $\\sqrt{18}\\div\\sqrt{8}=\\sqrt{\\dfrac{18}{8}}=\\sqrt{\\dfrac{9}{4}}=\\dfrac{3}{2}$\n(3) $\\sqrt{50}\\times\\sqrt{48}=\\sqrt{2400}=\\sqrt{400\\times 6}=20\\sqrt{6}$\n(4) $\\sqrt{10}\\div\\sqrt{5}\\times(-\\sqrt{2})=\\sqrt{2}\\times(-\\sqrt{2})=-2$\n(5) $\\sqrt{24}\\div(-\\sqrt{18})\\div\\sqrt{3}=-\\dfrac{\\sqrt{24}}{\\sqrt{18}\\times\\sqrt{3}}=-\\dfrac{\\sqrt{24}}{\\sqrt{54}}=-\\sqrt{\\dfrac{4}{9}}=-\\dfrac{2}{3}$',
+            time: 150
+          }
+        ]
+      },
+      {
+        id: 'sqrt_calc', tag: '中学3年 第2章', name: '根号をふくむ式の計算', desc: '加減・展開・複合計算',
+        questions: [
+          {
+            text: '次の計算をせよ。\n(1) $8\\sqrt{6}-2\\sqrt{6}$ (2) $-\\sqrt{3}+6\\sqrt{3}-2\\sqrt{3}$\n(3) $5\\sqrt{2}-7\\sqrt{2}+\\sqrt{2}$ (4) $4\\sqrt{5}+3\\sqrt{3}-3\\sqrt{5}$',
+            hint: '根号の中が同じものどうしをまとめる（文字式と同様）。',
+            answer: '(1) $6\\sqrt{6}$ (2) $3\\sqrt{3}$ (3) $-\\sqrt{2}$ (4) $\\sqrt{5}+3\\sqrt{3}$',
+            explain: '【方針】\n$\\sqrt{}$ の中が同じ項をまとめる。$4a+3a=(4+3)a$ と同様。\n\n【解法】\n(1) $8\\sqrt{6}-2\\sqrt{6}=(8-2)\\sqrt{6}=6\\sqrt{6}$\n(2) $(-1+6-2)\\sqrt{3}=3\\sqrt{3}$\n(3) $(5-7+1)\\sqrt{2}=-\\sqrt{2}$\n(4) $(4-3)\\sqrt{5}+3\\sqrt{3}=\\sqrt{5}+3\\sqrt{3}$',
+            time: 60
+          },
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{75}+\\sqrt{27}$ (2) $\\sqrt{72}+\\sqrt{32}$\n(3) $\\sqrt{8}-\\sqrt{18}+\\sqrt{2}$ (4) $\\sqrt{20}-\\sqrt{45}-\\sqrt{5}$',
+            hint: 'まず各項の根号の中を簡単にしてから同類項をまとめる。',
+            answer: '(1) $8\\sqrt{3}$ (2) $10\\sqrt{2}$ (3) $0$ (4) $-2\\sqrt{5}$',
+            explain: '【方針】\nまず各項を $a\\sqrt{b}$ の形に変形してからまとめる。\n\n【解法】\n(1) $5\\sqrt{3}+3\\sqrt{3}=8\\sqrt{3}$\n(2) $6\\sqrt{2}+4\\sqrt{2}=10\\sqrt{2}$\n(3) $2\\sqrt{2}-3\\sqrt{2}+\\sqrt{2}=0$\n(4) $2\\sqrt{5}-3\\sqrt{5}-\\sqrt{5}=-2\\sqrt{5}$',
+            time: 90
+          },
+          {
+            text: '$\\sqrt{48}-\\sqrt{27}+\\sqrt{3}$ を計算せよ。',
+            hint: '各項を $\\sqrt{3}$ を使った形に直す。',
+            answer: '$2\\sqrt{3}$',
+            explain: '【方針】\n各項を $\\sqrt{3}$ を含む形に変形してまとめる。\n\n【解法】\n$\\sqrt{48}=4\\sqrt{3}$\n$\\sqrt{27}=3\\sqrt{3}$\n$4\\sqrt{3}-3\\sqrt{3}+\\sqrt{3}=(4-3+1)\\sqrt{3}=2\\sqrt{3}$',
+            time: 60
+          },
+          {
+            text: '$\\sqrt{50}-\\dfrac{4}{\\sqrt{2}}$ を計算せよ。',
+            hint: '$\\sqrt{50}$ を簡単にし，$\\dfrac{4}{\\sqrt{2}}$ は分母を有理化してから計算する。',
+            answer: '$3\\sqrt{2}$',
+            explain: '【方針】\nまず各項を整理する。分母に $\\sqrt{}$ があれば有理化する。\n\n【解法】\n$\\sqrt{50}=5\\sqrt{2}$\n$\\dfrac{4}{\\sqrt{2}}=\\dfrac{4\\sqrt{2}}{2}=2\\sqrt{2}$\n$5\\sqrt{2}-2\\sqrt{2}=3\\sqrt{2}$',
+            time: 75
+          },
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{3}(1-\\sqrt{3})$ (2) $\\sqrt{5}(\\sqrt{20}-2)$ (3) $(\\sqrt{6}+\\sqrt{2})\\div\\sqrt{2}$',
+            hint: '分配法則を使う。$\\sqrt{a}\\times\\sqrt{a}=a$ に注意。',
+            answer: '(1) $\\sqrt{3}-3$ (2) $10-2\\sqrt{5}$ (3) $\\sqrt{3}+1$',
+            explain: '【方針】\n分配法則 $a(b+c)=ab+ac$ を $\\sqrt{}$ に適用する。\n\n【解法】\n(1) $\\sqrt{3}\\times 1-\\sqrt{3}\\times\\sqrt{3}=\\sqrt{3}-3$\n(2) $\\sqrt{5}\\times\\sqrt{20}-\\sqrt{5}\\times 2=\\sqrt{100}-2\\sqrt{5}=10-2\\sqrt{5}$\n(3) $(\\sqrt{6}+\\sqrt{2})\\div\\sqrt{2}=\\dfrac{\\sqrt{6}}{\\sqrt{2}}+\\dfrac{\\sqrt{2}}{\\sqrt{2}}=\\sqrt{3}+1$',
+            time: 90
+          },
+          {
+            text: '次の計算をせよ。\n(1) $(\\sqrt{2}+1)(\\sqrt{3}+2)$ (2) $(\\sqrt{6}-2)(2\\sqrt{6}+3)$',
+            hint: '$(a+b)(c+d)=ac+ad+bc+bd$ の展開を使う。',
+            answer: '(1) $\\sqrt{6}+2\\sqrt{2}+\\sqrt{3}+2$ (2) $6-\\sqrt{6}$',
+            explain: '【方針】\n分配法則で展開し，同類項をまとめる。\n\n【解法】\n(1) $\\sqrt{2}\\times\\sqrt{3}+\\sqrt{2}\\times 2+1\\times\\sqrt{3}+1\\times 2$\n$=\\sqrt{6}+2\\sqrt{2}+\\sqrt{3}+2$\n(2) $\\sqrt{6}\\times 2\\sqrt{6}+\\sqrt{6}\\times 3+(-2)\\times 2\\sqrt{6}+(-2)\\times 3$\n$=12+3\\sqrt{6}-4\\sqrt{6}-6$\n$=6-\\sqrt{6}$',
+            time: 90
+          },
+          {
+            text: '次の計算をせよ。\n(1) $(\\sqrt{2}-1)^2$ (2) $(\\sqrt{5}+\\sqrt{6})(\\sqrt{5}-\\sqrt{6})$\n(3) $(\\sqrt{3}+5)(\\sqrt{3}+4)$ (4) $(\\sqrt{2}+1)(\\sqrt{2}-7)$',
+            hint: '乗法の公式 $(a\\pm b)^2=a^2\\pm 2ab+b^2$，$(a+b)(a-b)=a^2-b^2$ を使う。',
+            answer: '(1) $3-2\\sqrt{2}$ (2) $-1$ (3) $23+9\\sqrt{3}$ (4) $-5-6\\sqrt{2}$',
+            explain: '【方針】\n乗法の公式を活用する。\n\n【解法】\n(1) $(\\sqrt{2})^2-2\\times\\sqrt{2}\\times 1+1^2=2-2\\sqrt{2}+1=3-2\\sqrt{2}$\n(2) $(\\sqrt{5})^2-(\\sqrt{6})^2=5-6=-1$\n(3) $(\\sqrt{3})^2+(4+5)\\sqrt{3}+5\\times 4=3+9\\sqrt{3}+20=23+9\\sqrt{3}$\n(4) $(\\sqrt{2})^2+(-7+1)\\sqrt{2}+1\\times(-7)=2-6\\sqrt{2}-7=-5-6\\sqrt{2}$',
+            time: 120
+          },
+          {
+            text: '$\\sqrt{60a}$ の値が自然数となる自然数 $a$ のうち最も小さいものを求めよ。',
+            hint: '$\\sqrt{60a}$ が自然数 → $60a$ が完全平方数になる条件を考える。素因数分解を利用。',
+            answer: '$a=15$',
+            explain: '【方針】\n$60$ を素因数分解し，完全平方数になるために必要な因数を求める。\n\n【解法】\n$60=2^2\\times 3\\times 5$\n$\\sqrt{60a}=\\sqrt{2^2\\times 3\\times 5\\times a}$\nこれが自然数になるには $3\\times 5\\times a$ が完全平方数になればよい。\n最小の $a$ は $a=3\\times 5=15$\n確認：$\\sqrt{60\\times 15}=\\sqrt{900}=30$ ✓',
+            time: 90
+          },
+          {
+            text: '$x=\\sqrt{3}-\\sqrt{2},\\ y=\\sqrt{3}+\\sqrt{2}$ のとき，\n(1) $(x+y)^2$ (2) $xy$ (3) $x^2-y^2$ の値を求めよ。',
+            hint: 'まず $x+y$ と $xy$ を計算してから公式を使う。$x^2-y^2=(x+y)(x-y)$',
+            answer: '(1) $12$ (2) $1$ (3) $-4\\sqrt{6}$',
+            explain: '【方針】\nまず $x+y$，$x-y$，$xy$ を求め，式に代入する。\n\n【解法】\n$x+y=(\\sqrt{3}-\\sqrt{2})+(\\sqrt{3}+\\sqrt{2})=2\\sqrt{3}$\n$x-y=(\\sqrt{3}-\\sqrt{2})-(\\sqrt{3}+\\sqrt{2})=-2\\sqrt{2}$\n$xy=(\\sqrt{3}-\\sqrt{2})(\\sqrt{3}+\\sqrt{2})=3-2=1$\n\n(1) $(x+y)^2=(2\\sqrt{3})^2=12$\n(2) $xy=1$\n(3) $x^2-y^2=(x+y)(x-y)=2\\sqrt{3}\\times(-2\\sqrt{2})=-4\\sqrt{6}$',
+            time: 120
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'grade4',
+    name: '高校1年',
+    subtitle: '準備中',
+    tag: '',
+    disabled: true,
+    sections: []
+  },
+  {
+    id: 'highmath2',
+    name: '高校2年（数学Ⅱ）',
+    subtitle: '確認クイズ',
+    tag: '数学Ⅱ 定期試験対策',
+    disabled: false,
+    sections: [
+      {
+        id: 'remainder', tag: '第2章 第2節', name: '剰余の定理と因数定理', desc: '多項式の割り算・因数分解の準備',
+        questions: [
+          {
+            text: '$P(x) = x^3 - 2x^2 + 3$ を $x - 1$ で割った余りを求めよ。',
+            hint: '剰余の定理：$x - k$ で割った余りは $P(k)$',
+            answer: '$2$',
+            explain: '【方針】\n剰余の定理より，$x-1$ で割った余りは $P(1)$ に等しい。\n\n【証明】\n$P(1) = 1^3 - 2 \\cdot 1^2 + 3$\n$\\quad\\; = 1 - 2 + 3$\n$\\quad\\; = 2$',
+            time: 40
+          },
+          {
+            text: '$P(x) = x^3 + 2x^2 + x + 5$ を $x + 2$ で割った余りを求めよ。',
+            hint: '$x+2 = x-(-2)$ なので余り $= P(-2)$',
+            answer: '$3$',
+            explain: '【方針】\n剰余の定理より，$x+2$ で割った余りは $P(-2)$ に等しい。\n\n【証明】\n$P(-2) = (-2)^3 + 2(-2)^2 + (-2) + 5$\n$\\quad\\;\\;\\;\\; = -8 + 8 - 2 + 5$\n$\\quad\\;\\;\\;\\; = 3$',
+            time: 45
+          },
+          {
+            text: '$P(x) = x^3 + ax^2 + 3x - 2a$ を $x - 2$ で割った余りが $12$ であるとき，定数 $a$ の値を求めよ。',
+            hint: '剰余の定理より $P(2) = 12$ として $a$ の方程式を立てる',
+            answer: '$a = -1$',
+            explain: '【方針】\n剰余の定理より $P(2) = 12$ として $a$ を求める。\n\n【証明】\n$P(2) = 2^3 + a \\cdot 2^2 + 3 \\cdot 2 - 2a$\n$\\quad\\;\\;\\;\\; = 8 + 4a + 6 - 2a$\n$\\quad\\;\\;\\;\\; = 2a + 14$\n\n$2a + 14 = 12$\n$\\quad\\; 2a = -2$\n$\\quad\\;\\; a = -1$',
+            time: 60
+          },
+          {
+            text: '$P(x) = x^3 + x^2 - 3x - 2$ を次の1次式で割った余りをそれぞれ求めよ。\n(1) $x - 1$　　(2) $x + 1$　　(3) $x + 2$',
+            hint: '各 $k$ について $P(k)$ を計算する',
+            answer: '(1) $-3$　　(2) $1$　　(3) $0$',
+            explain: '【方針】\n剰余の定理を各 $k$ に適用する。\n\n【証明】\n$P(1) = 1 + 1 - 3 - 2 = -3$\n\n$P(-1) = -1 + 1 + 3 - 2 = 1$\n\n$P(-2) = -8 + 4 + 6 - 2 = 0$',
+            time: 70
+          },
+          {
+            text: '多項式 $P(x)$ を $x-1$ で割った余りが $5$，$x+2$ で割った余りが $-1$ である。\n$P(x)$ を $(x-1)(x+2)$ で割った余りを求めよ。',
+            hint: '余りを $ax+b$ とおき，$P(1)$ と $P(-2)$ の2式を連立する',
+            answer: '$2x + 3$',
+            explain: '【方針】\n2次式で割った余りは1次式以下なので $ax+b$ とおいて連立する。\n\n【証明】\n余りを $ax + b$ とおくと\n$P(x) = (x-1)(x+2)Q(x) + ax + b$\n\n$P(1) = a + b = 5 \\quad \\cdots①$\n$P(-2) = -2a + b = -1 \\quad \\cdots②$\n\n$①-②$ より $\\; 3a = 6$\n$\\therefore a = 2,\\; b = 3$\n\nよって余りは $2x + 3$',
+            time: 120
+          },
+          {
+            text: '因数定理を用いて $x^3 - 4x^2 + x + 6$ を因数分解せよ。',
+            hint: '$P(k) = 0$ となる整数 $k$ を $\\pm 1, \\pm 2, \\pm 3, \\pm 6$ から探す',
+            answer: '$(x + 1)(x - 2)(x - 3)$',
+            explain: '【方針】\n$P(k)=0$ となる整数 $k$ を探し，因数定理を適用する。\n\n【証明】\n$P(-1) = -1 - 4 - 1 + 6 = 0$\n$\\therefore\\; x+1$ が因数\n\n$x^3 - 4x^2 + x + 6$\n$= (x+1)(x^2 - 5x + 6)$\n$= (x+1)(x-2)(x-3)$',
+            time: 90
+          },
+          {
+            text: '次の式を因数分解せよ。\n(1) $x^3 - 3x^2 - 6x + 8$\n(2) $x^3 - 5x^2 + 3x + 9$\n(3) $2x^3 + 3x^2 - 11x - 6$',
+            hint: '各 $P(k) = 0$ となる整数 $k$ を探して因数定理を適用する',
+            answer: '(1) $(x-1)(x+2)(x-4)$\n(2) $(x+1)(x-3)^2$\n(3) $(x+2)(x-3)(2x+1)$',
+            explain: '【方針】\n$P(k)=0$ となる $k$ を探して順に因数分解する。\n\n【証明】\n(1) $P(1)=0 \\Rightarrow (x-1)$ が因数\n$x^3-3x^2-6x+8 = (x-1)(x^2-2x-8)$\n$= (x-1)(x+2)(x-4)$\n\n(2) $P(-1)=0 \\Rightarrow (x+1)$ が因数\n$x^3-5x^2+3x+9 = (x+1)(x^2-6x+9)$\n$= (x+1)(x-3)^2$\n\n(3) $P(-2)=0 \\Rightarrow (x+2)$ が因数\n$2x^3+3x^2-11x-6 = (x+2)(2x^2-x-3)$\n$= (x+2)(2x+1)(x-3)$',
+            time: 180
+          }
+        ]
+      },
+      {
+        id: 'highorder', tag: '第2章 第2節', name: '高次方程式', desc: '3次・4次方程式の解法',
+        questions: [
+          {
+            text: '次の3次方程式を解け。\n(1) $x^3 - 8 = 0$\n(2) $x^3 + 1 = 0$',
+            hint: '因数分解の公式 $a^3 \\pm b^3 = (a \\pm b)(a^2 \\mp ab + b^2)$ を使う',
+            answer: '(1) $x = 2,\\; -1 \\pm \\sqrt{3}\\,i$\n(2) $x = -1,\\; \\dfrac{1 \\pm \\sqrt{3}\\,i}{2}$',
+            explain: '【方針】\n$a^3 - b^3 = (a-b)(a^2+ab+b^2)$ を使って因数分解し，2次方程式の解の公式を適用する。\n\n【証明】\n(1) $x^3 - 8 = (x-2)(x^2+2x+4) = 0$\n$x = 2 \\quad$ または $\\quad x^2+2x+4=0$\n$x = \\dfrac{-2 \\pm \\sqrt{4-16}}{2} = -1 \\pm \\sqrt{3}\\,i$\n\n(2) $x^3 + 1 = (x+1)(x^2-x+1) = 0$\n$x = -1 \\quad$ または $\\quad x^2-x+1=0$\n$x = \\dfrac{1 \\pm \\sqrt{1-4}}{2} = \\dfrac{1 \\pm \\sqrt{3}\\,i}{2}$',
+            time: 90
+          },
+          {
+            text: '次の4次方程式を解け。\n(1) $x^4 + x^2 - 20 = 0$\n(2) $x^4 - 1 = 0$',
+            hint: '(1) $x^2 = A$ と置換する　(2) 因数分解を繰り返す',
+            answer: '(1) $x = \\pm 2,\\; \\pm\\sqrt{5}\\,i$\n(2) $x = \\pm 1,\\; \\pm i$',
+            explain: '【方針】\n(1) $x^2 = A$ と置いて2次方程式に帰着させる。\n(2) 因数分解を繰り返して1次・2次の積に分解する。\n\n【証明】\n(1) $A = x^2$ とおくと\n$A^2 + A - 20 = (A+5)(A-4) = 0$\n$A = -5 \\Rightarrow x^2 = -5 \\Rightarrow x = \\pm\\sqrt{5}\\,i$\n$A = 4 \\Rightarrow x^2 = 4 \\Rightarrow x = \\pm 2$\n\n(2) $x^4-1 = (x^2-1)(x^2+1)$\n$= (x-1)(x+1)(x^2+1) = 0$\n$x = 1,\\; -1,\\; \\pm i$',
+            time: 90
+          },
+          {
+            text: '因数定理を用いて次の3次方程式を解け。\n$x^3 - 4x^2 + 8 = 0$',
+            hint: '$P(k)=0$ となる整数 $k$ を探し，因数分解してから解く',
+            answer: '$x = 2,\\; 1 \\pm \\sqrt{5}$',
+            explain: '【方針】\n$P(k)=0$ となる整数 $k$ を見つけ，因数定理で因数分解する。\n\n【証明】\n$P(2) = 8 - 16 + 8 = 0$\n$\\therefore\\; x - 2$ が因数\n\n$x^3 - 4x^2 + 8 = (x-2)(x^2-2x-4) = 0$\n\n$x^2 - 2x - 4 = 0$ を解くと\n$x = \\dfrac{2 \\pm \\sqrt{4+16}}{2} = 1 \\pm \\sqrt{5}$\n\nよって $x = 2,\\; 1+\\sqrt{5},\\; 1-\\sqrt{5}$',
+            time: 90
+          },
+          {
+            text: '次の3次方程式を解け。\n(1) $x^3 + 4x^2 + x - 6 = 0$\n(2) $x^3 + 4x^2 + 5x + 2 = 0$\n(3) $x^3 - 3x^2 + 2 = 0$\n(4) $2x^3 - 3x^2 - 4 = 0$',
+            hint: '各問，$P(k)=0$ となる整数 $k$ を見つけて因数分解',
+            answer: '(1) $x = 1,\\; -2,\\; -3$\n(2) $x = -1\\text{（重解）},\\; -2$\n(3) $x = 1,\\; 1\\pm\\sqrt{3}$\n(4) $x = 2,\\; \\dfrac{-1\\pm\\sqrt{15}\\,i}{4}$',
+            explain: '【方針】\n$P(k)=0$ となる整数 $k$ を探して因数分解し，残りの2次方程式を解く。\n\n【証明】\n(1) $P(1)=0 \\Rightarrow (x-1)$ が因数\n$(x-1)(x^2+5x+6) = (x-1)(x+2)(x+3) = 0$\n$x = 1,\\; -2,\\; -3$\n\n(2) $P(-1)=0 \\Rightarrow (x+1)$ が因数\n$(x+1)(x^2+3x+2) = (x+1)^2(x+2) = 0$\n$x = -1\\text{（重解）},\\; -2$\n\n(3) $P(1)=0 \\Rightarrow (x-1)$ が因数\n$(x-1)(x^2-2x-2) = 0$\n$x = 1,\\; 1\\pm\\sqrt{3}$\n\n(4) $P(2)=0 \\Rightarrow (x-2)$ が因数\n$(x-2)(2x^2+x+2) = 0$\n$x = 2,\\; \\dfrac{-1\\pm\\sqrt{1-16}}{4} = \\dfrac{-1\\pm\\sqrt{15}\\,i}{4}$',
+            time: 240
+          },
+          {
+            text: '$\\omega$ を1の虚数の3乗根とするとき，次の値を求めよ。\n(1) $\\omega^2 + \\omega + 1$\n(2) $(1+\\omega)(1+\\omega^2)$',
+            hint: '$\\omega$ は $x^2+x+1=0$ の解。$\\omega^2+\\omega+1=0$ と $\\omega^3=1$ を使う',
+            answer: '(1) $0$　　(2) $1$',
+            explain: '【方針】\n$\\omega$ は $x^2+x+1=0$ の解であることと $\\omega^3=1$ を利用する。\n\n【証明】\n(1) $\\omega$ は $x^2+x+1=0$ の解なので\n$\\omega^2 + \\omega + 1 = 0$\n\n(2) $(1+\\omega)(1+\\omega^2)$\n$= 1 + \\omega^2 + \\omega + \\omega^3$\n$= 1 + (\\omega^2 + \\omega) + \\omega^3$\n$= 1 + (-1) + 1$\n$= 1$',
+            time: 90
+          },
+          {
+            text: '$a,\\, b$ は実数とする。3次方程式 $x^3 - 3x^2 + ax + b = 0$ が $1+2i$ を解にもつとき，定数 $a,\\, b$ の値を求め，他の解もすべて求めよ。',
+            hint: '$1+2i$ を代入し，実部＝0，虚部＝0 の連立方程式を解く',
+            answer: '$a = 7,\\; b = -5$\n他の解：$x = 1-2i,\\; x = 1$',
+            explain: '【方針】\n実数係数の方程式なので，$1+2i$ が解なら $1-2i$ も解。\n$x=1+2i$ を代入して実部・虚部を分離する。\n\n【証明】\n$x = 1+2i$ を代入して整理すると\n$(a+b-2) + (2a-14)i = 0$\n\n$a,b$ は実数なので\n実部：$a+b-2=0 \\quad \\cdots①$\n虚部：$2a-14=0 \\quad \\cdots②$\n\n$② \\Rightarrow a=7$，$① \\Rightarrow b=-5$\n\n方程式は $x^3 - 3x^2 + 7x - 5 = 0$\n$= (x-1)(x^2-2x+5) = 0$\n\n$x^2-2x+5=0 \\Rightarrow x = 1 \\pm 2i$\n\nよって $x = 1,\\; 1+2i,\\; 1-2i$',
+            time: 150
+          }
+        ]
+      },
+      {
+        id: 'vieta2', tag: '第2章 第1節', name: '解と係数の関係（2次）', desc: '2次方程式の解の和・積と応用',
+        questions: [
+          {
+            text: '$2$次方程式 $x^2 - 4x + 5 = 0$ の2つの解を $\\alpha,\\, \\beta$ とするとき，次の式の値を求めよ。\n(1) $\\alpha^2 + \\beta^2$\n(2) $\\alpha^3 + \\beta^3$',
+            hint: '$\\alpha+\\beta$ と $\\alpha\\beta$ を解と係数の関係で求め，対称式の公式を使う',
+            answer: '(1) $6$　　(2) $4$',
+            explain: '【方針】\n解と係数の関係から $\\alpha+\\beta$，$\\alpha\\beta$ を求め，対称式の公式に代入する。\n\n【証明】\n$\\alpha + \\beta = 4,\\quad \\alpha\\beta = 5$\n\n(1) $\\alpha^2 + \\beta^2 = (\\alpha+\\beta)^2 - 2\\alpha\\beta$\n$= 16 - 10 = 6$\n\n(2) $\\alpha^3 + \\beta^3 = (\\alpha+\\beta)^3 - 3\\alpha\\beta(\\alpha+\\beta)$\n$= 64 - 60 = 4$',
+            time: 70
+          },
+          {
+            text: '$2$次方程式 $x^2 + 3x - 1 = 0$ の2つの解を $\\alpha,\\, \\beta$ とするとき，次の式の値を求めよ。\n(1) $\\alpha^2 + \\beta^2$\n(2) $\\alpha^3 + \\beta^3$\n(3) $(\\alpha - \\beta)^2$',
+            hint: '$\\alpha+\\beta = -3,\\; \\alpha\\beta = -1$ を使う',
+            answer: '(1) $11$　　(2) $-36$　　(3) $13$',
+            explain: '【方針】\n解と係数の関係から基本対称式を求め，各公式に代入する。\n\n【証明】\n$\\alpha + \\beta = -3,\\quad \\alpha\\beta = -1$\n\n(1) $\\alpha^2+\\beta^2 = (\\alpha+\\beta)^2 - 2\\alpha\\beta$\n$= 9 + 2 = 11$\n\n(2) $\\alpha^3+\\beta^3 = (\\alpha+\\beta)^3 - 3\\alpha\\beta(\\alpha+\\beta)$\n$= -27 - 9 = -36$\n\n(3) $(\\alpha-\\beta)^2 = (\\alpha+\\beta)^2 - 4\\alpha\\beta$\n$= 9 + 4 = 13$',
+            time: 90
+          },
+          {
+            text: '$2$次方程式 $x^2 + 3x + m = 0$ において，1つの解が他の解の2倍であるとき，定数 $m$ の値と2つの解を求めよ。',
+            hint: '2つの解を $\\alpha,\\, 2\\alpha$ とおいて解と係数の関係を立てる',
+            answer: '$m = 2$，解は $x = -1,\\; -2$',
+            explain: '【方針】\n解を $\\alpha,\\, 2\\alpha$ とおき，解と係数の関係を連立する。\n\n【証明】\n2つの解を $\\alpha,\\, 2\\alpha$ とおく。\n\n和：$\\alpha + 2\\alpha = -3$\n$\\therefore\\; 3\\alpha = -3 \\Rightarrow \\alpha = -1$\n\n積：$m = \\alpha \\cdot 2\\alpha = 2\\alpha^2 = 2\\times(-1)^2 = 2$\n\n2つの解：$\\alpha = -1$，$2\\alpha = -2$',
+            time: 70
+          },
+          {
+            text: '次の2数を解とする2次方程式を1つ作れ。\n(1) $2,\\; -1$\n(2) $2+\\sqrt{3},\\; 2-\\sqrt{3}$\n(3) $1+2i,\\; 1-2i$',
+            hint: '和・積を計算して $x^2 - (\\text{和})x + (\\text{積}) = 0$ の形にする',
+            answer: '(1) $x^2 - x - 2 = 0$\n(2) $x^2 - 4x + 1 = 0$\n(3) $x^2 - 2x + 5 = 0$',
+            explain: '【方針】\n2数の和・積を求めて $x^2-(\\text{和})x+(\\text{積})=0$ に代入する。\n\n【証明】\n(1) 和 $= 1$，積 $= -2$\n$\\Rightarrow x^2 - x - 2 = 0$\n\n(2) 和 $= 4$，積 $= (2+\\sqrt{3})(2-\\sqrt{3}) = 1$\n$\\Rightarrow x^2 - 4x + 1 = 0$\n\n(3) 和 $= 2$，積 $= (1+2i)(1-2i) = 5$\n$\\Rightarrow x^2 - 2x + 5 = 0$',
+            time: 70
+          },
+          {
+            text: '$2$次方程式 $x^2 + 2x + 4 = 0$ の2つの解を $\\alpha,\\, \\beta$ とするとき，2数 $\\alpha-1,\\; \\beta-1$ を解とする2次方程式を1つ作れ。',
+            hint: '$(\\alpha-1)+(\\beta-1)$ と $(\\alpha-1)(\\beta-1)$ を $\\alpha+\\beta,\\, \\alpha\\beta$ から計算する',
+            answer: '$x^2 + 4x + 7 = 0$',
+            explain: '【方針】\n新しい2数の和・積を元の $\\alpha+\\beta$，$\\alpha\\beta$ で表す。\n\n【証明】\n$\\alpha+\\beta = -2,\\quad \\alpha\\beta = 4$\n\n和 $= (\\alpha-1)+(\\beta-1)$\n$= (\\alpha+\\beta) - 2 = -4$\n\n積 $= (\\alpha-1)(\\beta-1)$\n$= \\alpha\\beta - (\\alpha+\\beta) + 1$\n$= 4-(-2)+1 = 7$\n\nよって $x^2 - (-4)x + 7 = 0$\n$x^2 + 4x + 7 = 0$',
+            time: 90
+          },
+          {
+            text: '$2$次方程式 $x^2 - 3x - 1 = 0$ の2つの解を $\\alpha,\\, \\beta$ とするとき，次の2数を解とする2次方程式を1つ作れ。\n(1) $1-\\alpha,\\; 1-\\beta$\n(2) $\\alpha^2,\\; \\beta^2$',
+            hint: '新しい解の和・積を $\\alpha+\\beta=3,\\; \\alpha\\beta=-1$ から表す',
+            answer: '(1) $x^2 + x - 3 = 0$\n(2) $x^2 - 11x + 1 = 0$',
+            explain: '【方針】\n新しい2数の和・積を $\\alpha+\\beta$，$\\alpha\\beta$ で表す。\n\n【証明】\n$\\alpha+\\beta = 3,\\quad \\alpha\\beta = -1$\n\n(1) 和 $= (1-\\alpha)+(1-\\beta) = 2-(\\alpha+\\beta) = -1$\n積 $= (1-\\alpha)(1-\\beta) = 1-(\\alpha+\\beta)+\\alpha\\beta = -3$\n$\\Rightarrow x^2+x-3=0$\n\n(2) 和 $= \\alpha^2+\\beta^2 = (\\alpha+\\beta)^2-2\\alpha\\beta = 11$\n積 $= \\alpha^2\\beta^2 = (\\alpha\\beta)^2 = 1$\n$\\Rightarrow x^2-11x+1=0$',
+            time: 120
+          },
+          {
+            text: '$2$次方程式 $x^2 - 2mx - m + 6 = 0$ が異なる2つの正の解をもつとき，定数 $m$ の値の範囲を求めよ。',
+            hint: '3条件を連立：$D>0$，解の和 $>0$，解の積 $>0$',
+            answer: '$2 < m < 6$',
+            explain: '【方針】\n2解を $\\alpha,\\beta$ とすると，異なる2つの正の解をもつ条件は\n$D>0$，$\\alpha+\\beta>0$，$\\alpha\\beta>0$ の3つを同時に満たすこと。\n\n【証明】\n$\\text{【条件①：}D>0\\text{】}$\n$\\dfrac{D}{4} = m^2+(m-6) = (m+3)(m-2) > 0$\n$\\Rightarrow m < -3 \\;\\text{または}\\; m > 2 \\quad\\cdots①$\n\n$\\text{【条件②：和 > 0】}$\n$\\alpha+\\beta = 2m > 0 \\Rightarrow m > 0 \\quad\\cdots②$\n\n$\\text{【条件③：積 > 0】}$\n$\\alpha\\beta = -m+6 > 0 \\Rightarrow m < 6 \\quad\\cdots③$\n\n$①②③$ の共通範囲：$2 < m < 6$',
+            time: 150
+          }
+        ]
+      },
+      {
+        id: 'inequality', tag: '第1章 第2節', name: '不等式の証明', desc: '差・平方・相加平均と相乗平均',
+        questions: [
+          {
+            text: '$x > y$ のとき，不等式 $3x - 4y > x - 2y$ を証明せよ。',
+            hint: '左辺 $-$ 右辺を計算し，正であることを示す',
+            answer: '$(3x-4y)-(x-2y) = 2(x-y) > 0$',
+            explain: '【方針】\n左辺 $-$ 右辺を計算し，$x>y$ を用いて正であることを示す。\n\n【証明】\n$(3x-4y)-(x-2y) = 2x-2y = 2(x-y)$\n\n$x > y$ より $x-y > 0$\nよって $2(x-y) > 0$\n\nしたがって $3x-4y > x-2y$ $\\quad\\square$',
+            time: 50
+          },
+          {
+            text: '$x > 2,\\; y > 3$ のとき，不等式 $xy + 6 > 3x + 2y$ を証明せよ。',
+            hint: '左辺 $-$ 右辺を因数分解し，各因数の符号を確かめる',
+            answer: '$(xy+6)-(3x+2y) = (x-2)(y-3) > 0$',
+            explain: '【方針】\n左辺 $-$ 右辺を因数分解し，各因数が正であることを示す。\n\n【証明】\n$(xy+6)-(3x+2y) = xy-3x-2y+6$\n$= x(y-3)-2(y-3)$\n$= (x-2)(y-3)$\n\n$x>2$ より $x-2>0$\n$y>3$ より $y-3>0$\nよって $(x-2)(y-3)>0$\n\nしたがって $xy+6 > 3x+2y$ $\\quad\\square$',
+            time: 70
+          },
+          {
+            text: '次の不等式を証明せよ。また，等号が成り立つときを調べよ。\n(1) $x^2 + 9y^2 \\geqq 6xy$\n(2) $(a+b)^2 \\geqq 4ab$\n(3) $2x^2 + 9y^2 \\geqq 6xy$',
+            hint: '左辺 $-$ 右辺を完全平方式の形に変形する',
+            answer: '(1) 等号：$x = 3y$ のとき\n(2) 等号：$a = b$ のとき\n(3) 等号：$x = y = 0$ のとき',
+            explain: '【方針】\n左辺 $-$ 右辺を平方の形に変形し，$\\geqq 0$ を示す。\n\n【証明】\n(1) $x^2+9y^2-6xy = (x-3y)^2 \\geqq 0$\n等号：$x = 3y$ のとき\n\n(2) $(a+b)^2-4ab = a^2+2ab+b^2-4ab$\n$= a^2-2ab+b^2 = (a-b)^2 \\geqq 0$\n等号：$a = b$ のとき\n\n(3) $2x^2+9y^2-6xy = x^2+(x^2-6xy+9y^2)$\n$= x^2+(x-3y)^2 \\geqq 0$\n等号：$x=0$ かつ $x-3y=0 \\Rightarrow x=y=0$ のとき',
+            time: 120
+          },
+          {
+            text: '次の不等式を証明せよ。また，等号が成り立つときを調べよ。\n$a^2 - ab + b^2 \\geqq 0$',
+            hint: '$a$ について平方完成する',
+            answer: '等号成立は $a = b = 0$ のとき',
+            explain: '【方針】\n平方完成して，各項が $\\geqq 0$ であることを示す。\n\n【証明】\n$a^2-ab+b^2 = \\left(a-\\dfrac{b}{2}\\right)^2 + \\dfrac{3b^2}{4}$\n\n$\\left(a-\\dfrac{b}{2}\\right)^2 \\geqq 0$\n$\\dfrac{3b^2}{4} \\geqq 0$\n\nよって $\\left(a-\\dfrac{b}{2}\\right)^2 + \\dfrac{3b^2}{4} \\geqq 0$\nしたがって $a^2-ab+b^2 \\geqq 0$ $\\quad\\square$\n\n等号：$a-\\dfrac{b}{2}=0$ かつ $b=0$\n$\\Rightarrow a=b=0$ のとき',
+            time: 70
+          },
+          {
+            text: '$a > 0,\\; b > 0$ のとき，不等式 $\\sqrt{a}+\\sqrt{b} > \\sqrt{a+b}$ を証明せよ。',
+            hint: '両辺とも正なので，両辺の平方を比較する',
+            answer: '$(\\sqrt{a}+\\sqrt{b})^2 > (\\sqrt{a+b})^2$ より $\\sqrt{a}+\\sqrt{b} > \\sqrt{a+b}$',
+            explain: '【方針】\n両辺とも正なので，平方の大小を比較すればよい。\n\n【証明】\n$\\sqrt{a}>0,\\; \\sqrt{b}>0,\\; \\sqrt{a+b}>0$ より，両辺正。\n\n$(\\sqrt{a}+\\sqrt{b})^2 - (\\sqrt{a+b})^2$\n$= (a+2\\sqrt{ab}+b)-(a+b)$\n$= 2\\sqrt{ab}$\n$> 0 \\quad (a>0,\\; b>0$ より $ab>0)$\n\nよって $(\\sqrt{a}+\\sqrt{b})^2 > (\\sqrt{a+b})^2$\n両辺正より $\\sqrt{a}+\\sqrt{b} > \\sqrt{a+b}$ $\\quad\\square$',
+            time: 90
+          },
+          {
+            text: '次の不等式を証明せよ。また，等号が成り立つときを調べよ。\n$|a| + |b| \\geqq |a + b|$',
+            hint: '両辺とも正なので平方で比較し，$|ab| \\geqq ab$ を使う',
+            answer: '等号成立は $ab \\geqq 0$ のとき',
+            explain: '【方針】\n両辺とも正なので平方を比較する。\n$|ab| \\geqq ab$（絶対値の性質）を利用する。\n\n【証明】\n$|a|+|b| \\geqq 0,\\; |a+b| \\geqq 0$ より両辺正。\n\n$(|a|+|b|)^2 - |a+b|^2$\n$= (a^2+2|a||b|+b^2)-(a^2+2ab+b^2)$\n$= 2|ab|-2ab$\n$= 2(|ab|-ab) \\geqq 0$\n\nよって $(|a|+|b|)^2 \\geqq |a+b|^2$\n両辺正より $|a|+|b| \\geqq |a+b|$ $\\quad\\square$\n\n等号：$|ab|=ab$，すなわち $ab \\geqq 0$ のとき',
+            time: 100
+          },
+          {
+            text: '$a > 0$ のとき，不等式 $a + \\dfrac{1}{a} \\geqq 2$ を証明せよ。また，等号が成り立つときを調べよ。',
+            hint: '相加平均 $\\geqq$ 相乗平均 の関係を使う',
+            answer: '$a + \\dfrac{1}{a} \\geqq 2$。等号成立は $a = 1$ のとき',
+            explain: '【方針】\n相加平均 $\\geqq$ 相乗平均 の関係を $a$ と $\\dfrac{1}{a}$ に適用する。\n\n【証明】\n$a>0,\\; \\dfrac{1}{a}>0$ より\n\n$\\dfrac{a+\\dfrac{1}{a}}{2} \\geqq \\sqrt{a \\cdot \\dfrac{1}{a}} = \\sqrt{1} = 1$\n\nよって $a + \\dfrac{1}{a} \\geqq 2$ $\\quad\\square$\n\n等号：$a = \\dfrac{1}{a}$\n$a^2=1,\\; a>0$ より $a=1$ のとき',
+            time: 60
+          },
+          {
+            text: '$a>0,\\; b>0$ のとき，次の不等式を証明せよ。また，等号が成り立つときを調べよ。\n(1) $a + \\dfrac{4}{a} \\geqq 4$\n(2) $\\dfrac{a}{b} + \\dfrac{b}{a} \\geqq 2$',
+            hint: '各問とも相加平均 $\\geqq$ 相乗平均 の関係を使う',
+            answer: '(1) 等号は $a=2$ のとき\n(2) 等号は $a=b$ のとき',
+            explain: '【方針】\n相加平均 $\\geqq$ 相乗平均 の関係を各組に適用する。\n\n【証明】\n(1) $a>0,\\; \\dfrac{4}{a}>0$ より\n$\\dfrac{a+\\dfrac{4}{a}}{2} \\geqq \\sqrt{a \\cdot \\dfrac{4}{a}} = \\sqrt{4} = 2$\nよって $a+\\dfrac{4}{a} \\geqq 4$ $\\quad\\square$\n等号：$a=\\dfrac{4}{a} \\Rightarrow a^2=4 \\Rightarrow a=2$（$a>0$）\n\n(2) $\\dfrac{a}{b}>0,\\; \\dfrac{b}{a}>0$ より\n$\\dfrac{\\dfrac{a}{b}+\\dfrac{b}{a}}{2} \\geqq \\sqrt{\\dfrac{a}{b}\\cdot\\dfrac{b}{a}} = 1$\nよって $\\dfrac{a}{b}+\\dfrac{b}{a} \\geqq 2$ $\\quad\\square$\n等号：$\\dfrac{a}{b}=\\dfrac{b}{a} \\Rightarrow a=b$（$a,b>0$）',
+            time: 100
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ── 状態変数 ──────────────────────────────────────────
+let currentGradeId = null;
+let state = { selectedIds:[], questions:[], current:0, okCount:0, startTime:0, results:[] };
+let timerInterval = null;
+let timeLeft = 0;
+let answerShown = false;
+
+// ── ユーティリティ ────────────────────────────────────
+function getStoreKey() { return 'math_quiz_' + (currentGradeId || 'default'); }
+
+function getCurrentGrade() {
+  return GRADE_DATA.find(function(g) { return g.id === currentGradeId; }) || null;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── 学年選択 ──────────────────────────────────────────
+function buildGradePage() {
+  var parsed = parseStudentId(sessionStorage.getItem('studentId') || '');
+  var lbl = document.getElementById('grade-student-label');
+  if (parsed) {
+    lbl.textContent = parsed.label + ' — 学年を選んでください';
+  } else {
+    lbl.textContent = '学年を選んでください';
+  }
+
+  var grid = document.getElementById('grade-grid');
+  grid.innerHTML = '';
+  GRADE_DATA.forEach(function(g) {
+    var card = document.createElement('div');
+    card.className = 'grade-card' + (g.disabled ? ' disabled' : '');
+    card.innerHTML =
+      '<div class="gc-badge">' + (g.disabled ? '準備中' : '受講可') + '</div>' +
+      '<h2>' + g.name + '</h2>' +
+      '<p>' + g.subtitle + '</p>';
+    if (!g.disabled) {
+      card.onclick = function() { selectGrade(g.id); };
+    }
+    grid.appendChild(card);
+  });
+}
+
+function selectGrade(id) {
+  currentGradeId = id;
+  var g = getCurrentGrade();
+  document.getElementById('top-logo').textContent = g.tag || '数学 定期試験対策';
+  document.getElementById('top-title').textContent = g.subtitle || '確認クイズ';
+  state.selectedIds = [];
+  showScreen('top');
+  buildTopPage();
+}
+
+function goGrade() {
+  stopTimer();
+  state.selectedIds = [];
+  showScreen('grade');
+  buildGradePage();
+}
+
+// ── 単元選択 ──────────────────────────────────────────
+function buildTopPage() {
+  var g = getCurrentGrade();
+  var sections = g ? g.sections : [];
+  var grid = document.getElementById('section-grid');
+  grid.innerHTML = '';
+
+  if (sections.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#aaa;font-size:14px;">この学年の問題は準備中です。</div>';
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('resume-area').innerHTML = '';
+    return;
+  }
+
+  sections.forEach(function(sec) {
+    var card = document.createElement('div');
+    card.className = 'section-card';
+    card.id = 'card-' + sec.id;
+    card.innerHTML = '<div class="tag">' + sec.tag + '</div><h3>' + sec.name + '</h3><p>' + sec.desc + '</p><div class="count">' + sec.questions.length + '問</div>';
+    card.onclick = function() { toggleSection(sec.id); };
+    grid.appendChild(card);
+  });
+
+  var saved = loadSave();
+  var ra = document.getElementById('resume-area');
+  if (saved) {
+    ra.innerHTML = '<div class="resume-box"><div class="info">保存データあり：<strong>' + saved.questions.length + '問中 ' + saved.current + '問完了</strong>（⭕ ' + saved.okCount + '問）</div><button class="resume-btn" onclick="resumeQuiz()">▶ 再開する</button></div>';
+  } else {
+    ra.innerHTML = '';
+  }
+  document.getElementById('start-btn').disabled = state.selectedIds.length === 0;
+}
+
+function toggleSection(id) {
+  var idx = state.selectedIds.indexOf(id);
+  if (idx >= 0) state.selectedIds.splice(idx, 1); else state.selectedIds.push(id);
+  document.querySelectorAll('.section-card').forEach(function(c) { c.classList.remove('selected'); });
+  state.selectedIds.forEach(function(sid) { var el = document.getElementById('card-'+sid); if(el) el.classList.add('selected'); });
+  document.getElementById('start-btn').disabled = state.selectedIds.length === 0;
+}
+
+function goTop() { stopTimer(); state.selectedIds = []; showScreen('top'); buildTopPage(); }
+
+// ── クイズ ────────────────────────────────────────────
+function startQuiz() {
+  var g = getCurrentGrade();
+  var sections = g ? g.sections : [];
+  var qs = [];
+  sections.forEach(function(sec) {
+    if (state.selectedIds.includes(sec.id))
+      qs = qs.concat(sec.questions.map(function(q) { return Object.assign({}, q, {section: sec.name}); }));
+  });
+  qs = shuffle(qs);
+  state.questions = qs; state.current = 0; state.okCount = 0; state.startTime = Date.now(); state.results = [];
+  showScreen('quiz'); renderQuestion();
+}
+
+function resumeQuiz() {
+  var saved = loadSave(); if (!saved) return;
+  state = Object.assign({}, saved); showScreen('quiz'); renderQuestion();
+}
+
+function renderQuestion() {
+  var q = state.questions[state.current];
+  if (!q) { clearSave(); showResult(); return; }
+  answerShown = false;
+  document.getElementById('q-section').textContent = q.section || '';
+  document.getElementById('q-num').textContent = 'Q' + (state.current+1);
+  renderText(document.getElementById('q-text'), q.text);
+  var hintEl = document.getElementById('q-hint');
+  if (q.hint) { renderText(hintEl, 'ヒント：' + q.hint); hintEl.style.display = 'block'; } else hintEl.style.display = 'none';
+  renderText(document.getElementById('ap-answer'), q.answer);
+  renderExplain(document.getElementById('ap-explain'), q.explain);
+  document.getElementById('answer-panel').classList.remove('visible');
+  document.getElementById('self-eval').classList.remove('visible');
+  document.getElementById('self-eval').style.opacity = '1';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('show-answer-btn').disabled = false;
+  document.querySelectorAll('.eval-btn').forEach(function(b) { b.disabled = false; });
+  var total = state.questions.length, cur = state.current;
+  document.getElementById('progress-text').textContent = '問題 ' + (cur+1) + ' / ' + total;
+  var okC = state.results.filter(function(r) { return r; }).length;
+  var ngC = state.results.filter(function(r) { return r === false; }).length;
+  document.getElementById('eval-text').textContent = state.results.length > 0 ? '⭕'+okC+' ✕'+ngC : '';
+  document.getElementById('progress-fill').style.width = (cur/total*100) + '%';
+  startTimer(q.time);
+}
+
+function showAnswer() {
+  if (answerShown) return;
+  answerShown = true; stopTimer();
+  document.getElementById('show-answer-btn').disabled = true;
+  document.getElementById('answer-panel').classList.add('visible');
+  document.getElementById('self-eval').classList.add('visible');
+  document.getElementById('timer-val').textContent = '—';
+  document.getElementById('timer-val').classList.remove('urgent');
+}
+
+function evalAnswer(isOk) {
+  if (isOk) state.okCount++;
+  state.results.push(isOk);
+  document.querySelectorAll('.eval-btn').forEach(function(b) { b.disabled = true; });
+  document.getElementById('self-eval').style.opacity = '0.5';
+  document.getElementById('next-btn').style.display = 'block';
+  saveProgress();
+}
+
+function nextQuestion() {
+  state.current++;
+  if (state.current >= state.questions.length) { clearSave(); showResult(); }
+  else renderQuestion();
+}
+
+function startTimer(seconds) {
+  stopTimer(); timeLeft = seconds; updateTimerUI(timeLeft);
+  timerInterval = setInterval(function() { timeLeft--; updateTimerUI(timeLeft); if (timeLeft <= 0) stopTimer(); }, 1000);
+}
+function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+function updateTimerUI(left) {
+  var el = document.getElementById('timer-val'); if (!el) return;
+  el.textContent = Math.max(0, left);
+  if (left <= 10) el.classList.add('urgent'); else el.classList.remove('urgent');
+}
+
+function saveProgress() {
+  localStorage.setItem(getStoreKey(), JSON.stringify({questions:state.questions, current:state.current+1, okCount:state.okCount, startTime:state.startTime, results:state.results}));
+}
+function saveAndQuit() { saveProgress(); stopTimer(); goTop(); }
+function loadSave() {
+  try { var d = localStorage.getItem(getStoreKey()); if (!d) return null; var p = JSON.parse(d); if (!p || !p.questions || p.current >= p.questions.length) { clearSave(); return null; } return p; } catch(e) { return null; }
+}
+function clearSave() { localStorage.removeItem(getStoreKey()); }
+
+// ── 結果 ──────────────────────────────────────────────
+function showResult() {
+  stopTimer(); showScreen('result');
+  var total = state.results.length, ok = state.results.filter(function(r) { return r; }).length;
+  var scoreVal = total > 0 ? Math.round(ok/total*100) : 0;
+  var elapsed = Math.round((Date.now() - state.startTime) / 60000);
+  document.getElementById('send-status').textContent = '';
+  sendResult(scoreVal, ok, total);
+  document.getElementById('result-score').textContent = scoreVal + '点';
+  document.getElementById('s-ok').textContent = ok;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-time').textContent = elapsed + '分';
+  var msgs = ['もう少し練習しよう！', 'いい調子！継続あるのみ！', 'よくできました！', '完璧です！'];
+  document.getElementById('result-msg').textContent = msgs[scoreVal>=90?3:scoreVal>=70?2:scoreVal>=50?1:0];
+  var rl = document.getElementById('review-list');
+  var ngItems = state.results.map(function(r,i) { return {r:r, i:i}; }).filter(function(x) { return x.r === false; });
+  if (ok === total && total > 0) {
+    rl.innerHTML = '<div style="text-align:center;color:#3a9a55;padding:24px;font-size:15px">🎉 全問正解！素晴らしい！</div>';
+  } else {
+    rl.innerHTML = ngItems.map(function(x) { return '<div class="review-item ng-item"><div class="ri-q" id="ri-q-'+x.i+'"></div><div class="ri-a" id="ri-a-'+x.i+'"></div></div>'; }).join('');
+  }
+  document.querySelectorAll('[id^="ri-q-"]').forEach(function(el) {
+    var idx = parseInt(el.id.replace('ri-q-', ''));
+    renderText(el, 'Q'+(idx+1)+'　'+state.questions[idx].text);
+  });
+  document.querySelectorAll('[id^="ri-a-"]').forEach(function(el) {
+    var idx = parseInt(el.id.replace('ri-a-', ''));
+    renderText(el, '模範解答：' + state.questions[idx].answer);
+  });
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+
+// ── KaTeX レンダリング ────────────────────────────────
+function renderMathLine(container, text) {
+  container.innerHTML = '';
+  if (!text || text.trim() === '') return;
+  var parts = text.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]+?\$)/g);
+  parts.forEach(function(part) {
+    if (!part) return;
+    if (part.startsWith('$$') && part.endsWith('$$')) {
+      var math = part.slice(2, -2);
+      var span = document.createElement('span');
+      try { span.innerHTML = katex.renderToString(math, {throwOnError:false, displayMode:true}); } catch(e) { span.textContent = part; }
+      container.appendChild(span);
+    } else if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+      var math = part.slice(1, -1);
+      var span = document.createElement('span');
+      try { span.innerHTML = katex.renderToString(math, {throwOnError:false, displayMode:false}); } catch(e) { span.textContent = part; }
+      container.appendChild(span);
+    } else {
+      container.appendChild(document.createTextNode(part));
+    }
+  });
+}
+
+function renderText(el, text) {
+  el.innerHTML = '';
+  var lines = text.split('\n');
+  lines.forEach(function(line) {
+    var div = document.createElement('div');
+    div.style.cssText = 'line-height:1.9; min-height:' + (line.trim() === '' ? '0.6' : '1.4') + 'em;';
+    renderMathLine(div, line);
+    el.appendChild(div);
+  });
+}
+
+function renderExplain(el, text) {
+  el.innerHTML = '';
+  var lines = text.split('\n');
+  var buffer = [];
+
+  function flushBuffer() {
+    if (buffer.length === 0) return;
+    var div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:2px;';
+    buffer.forEach(function(line) {
+      var row = document.createElement('div');
+      row.style.cssText = 'line-height:2; min-height:' + (line.trim() === '' ? '0.6' : '1.2') + 'em; font-family: "Courier New", monospace; font-size:13.5px;';
+      renderMathLine(row, line);
+      div.appendChild(row);
+    });
+    el.appendChild(div);
+    buffer = [];
+  }
+
+  lines.forEach(function(line) {
+    if (line === '【方針】' || line === '【証明】' || line === '【解法】') {
+      flushBuffer();
+      var wrapper = document.createElement('div');
+      wrapper.style.cssText = 'margin: 10px 0 6px;';
+      var lbl = document.createElement('span');
+      var cls = 'ap-section-label ';
+      if (line === '【方針】') cls += 'ap-label-housin';
+      else if (line === '【解法】') cls += 'ap-label-kaitou';
+      else cls += 'ap-label-shomei';
+      lbl.className = cls;
+      lbl.textContent = line;
+      wrapper.appendChild(lbl);
+      el.appendChild(wrapper);
+    } else {
+      buffer.push(line);
+    }
+  });
+  flushBuffer();
+}
+
+// ── 出席番号パーサー ──────────────────────────────────
+var GRADE_LABELS = ['', '1年（中1）', '2年（中2）', '3年（中3）', '4年（高1）', '5年（高2）', '6年（高3）'];
+
+function parseStudentId(code) {
+  var s = String(code).trim();
+  if (!/^\d{4}$/.test(s)) return null;
+  var grade = parseInt(s[0], 10);
+  var cls   = parseInt(s[1], 10);
+  var num   = parseInt(s.slice(2), 10);
+  if (grade < 1 || grade > 6) return null;
+  if (cls   < 1 || cls   > 9) return null;
+  if (num   < 1 || num   > 40) return null;
+  return { grade:grade, cls:cls, num:num, label: GRADE_LABELS[grade]+' '+cls+'組 '+num+'番' };
+}
+
+function previewStudentId() {
+  var val = document.getElementById('input-student-id').value.trim();
+  var el  = document.getElementById('student-id-preview');
+  if (val.length === 0) { el.textContent = ''; return; }
+  var parsed = parseStudentId(val);
+  if (parsed) {
+    el.textContent = '→ ' + parsed.label;
+    el.style.color = '#5060c8';
+  } else if (val.length === 4) {
+    var g = parseInt(val[0], 10), c = parseInt(val[1], 10), n = parseInt(val.slice(2), 10);
+    if (g < 1 || g > 6)  el.textContent = '1桁目（学年）は 1〜6 で入力してください';
+    else if (c < 1 || c > 9) el.textContent = '2桁目（組）は 1〜9 で入力してください';
+    else                  el.textContent = '3・4桁目（番号）は 01〜40 で入力してください';
+    el.style.color = '#cc4444';
+  } else {
+    el.textContent = '';
+  }
+}
+
+// ── ログイン ──────────────────────────────────────────
+function login() {
+  var idVal   = document.getElementById('input-student-id').value.trim();
+  var nameVal = document.getElementById('input-student-name').value.trim();
+  var errEl   = document.getElementById('login-error');
+  var parsed  = parseStudentId(idVal);
+  if (!parsed) {
+    var msg = '';
+    if (!/^\d{4}$/.test(idVal)) {
+      msg = '4桁の数字で入力してください（例：5102）。';
+    } else {
+      var g = parseInt(idVal[0], 10), c = parseInt(idVal[1], 10), n = parseInt(idVal.slice(2), 10);
+      if (g < 1 || g > 6)  msg = '1桁目（学年）は 1〜6 で入力してください。';
+      else if (c < 1 || c > 9) msg = '2桁目（組）は 1〜9 で入力してください。';
+      else                  msg = '3・4桁目（番号）は 01〜40 で入力してください。';
+    }
+    errEl.textContent = msg;
+    document.getElementById('input-student-id').focus();
+    return;
+  }
+  errEl.textContent = '';
+  sessionStorage.setItem('studentId', idVal);
+  sessionStorage.setItem('studentName', nameVal);
+  showScreen('grade');
+  buildGradePage();
+}
+
+// ── GAS 送信 ─────────────────────────────────────────
+function sendResult(scoreVal, ok, total) {
+  if (!GAS_URL || GAS_URL === 'ここにGASのURLを貼る') return;
+  var statusEl = document.getElementById('send-status');
+  statusEl.textContent = '📤 記録を送信中...';
+  var g = getCurrentGrade();
+  var payload = {
+    studentId: sessionStorage.getItem('studentId') || '',
+    studentName: sessionStorage.getItem('studentName') || '',
+    timestamp: new Date().toISOString(),
+    grade: currentGradeId || '',
+    gradeName: g ? g.name : '',
+    sections: state.selectedIds,
+    totalQuestions: total,
+    correctCount: ok,
+    scorePercent: scoreVal,
+    details: state.results.map(function(r, i) {
+      return {
+        section: state.questions[i] ? state.questions[i].section : '',
+        questionText: state.questions[i] ? state.questions[i].text : '',
+        correct: r
+      };
+    })
+  };
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    setTimeout(function() { statusEl.textContent = '✅ 記録しました'; }, 2000);
+  }).catch(function() {
+    statusEl.textContent = '';
+  });
+}
+</script>
+</body>
+</html>
