@@ -427,7 +427,210 @@ const GRADE_DATA = [
     subtitle: '平方根 確認クイズ',
     tag: '中3数学 定期試験対策',
     disabled: false,
-    sections: []  // 問題データは後で追加
+    sections: [
+      {
+        id: 'square_root_basics', tag: '中学3年 第2章', name: '平方根の基礎', desc: '平方根の意味と大小関係',
+        questions: [
+          {
+            text: '次の数の平方根を求めよ。\n(1) $25$ (2) $1$ (3) $81$ (4) $49$\n(5) $\\dfrac{9}{16}$ (6) $\\dfrac{1}{4}$ (7) $0.36$ (8) $0.09$',
+            hint: '2乗してその数になる数を考える。正の数の平方根は正・負の2つある。',
+            answer: '(1) $\\pm 5$ (2) $\\pm 1$ (3) $\\pm 9$ (4) $\\pm 7$\n(5) $\\pm\\dfrac{3}{4}$ (6) $\\pm\\dfrac{1}{2}$ (7) $\\pm 0.6$ (8) $\\pm 0.3$',
+            explain: '【方針】\n2乗するとaになる数をaの平方根という。\n正の数の平方根は正・負の2つある。\n\n【解法】\n(1) $5^2=25,\\ (-5)^2=25$ → $\\pm 5$\n(2) $1^2=1$ → $\\pm 1$\n(3) $9^2=81$ → $\\pm 9$\n(4) $7^2=49$ → $\\pm 7$\n(5) $\\left(\\dfrac{3}{4}\\right)^2=\\dfrac{9}{16}$ → $\\pm\\dfrac{3}{4}$\n(6) $\\left(\\dfrac{1}{2}\\right)^2=\\dfrac{1}{4}$ → $\\pm\\dfrac{1}{2}$\n(7) $0.6^2=0.36$ → $\\pm 0.6$\n(8) $0.3^2=0.09$ → $\\pm 0.3$',
+            time: 90
+          },
+          {
+            text: '$(\\sqrt{5})^2$ の値と $(-\\sqrt{5})^2$ の値を求めよ。',
+            hint: '$(\\sqrt{a})^2=a$ の定義を使う。',
+            answer: 'どちらも $5$',
+            explain: '【方針】\n$\\sqrt{a}$ は「2乗するとaになる正の数」なので $(\\sqrt{a})^2=a$\n\n【解法】\n$(\\sqrt{5})^2 = 5$\n$(-\\sqrt{5})^2 = (-1)^2 \\times (\\sqrt{5})^2 = 5$',
+            time: 30
+          },
+          {
+            text: '次の数を $\\sqrt{}$ を使わずに表せ。\n(1) $\\sqrt{49}$ (2) $-\\sqrt{64}$ (3) $\\sqrt{0.25}$ (4) $-\\sqrt{\\dfrac{9}{16}}$',
+            hint: '根号の中が何かの2乗になっているか確認する。$\\sqrt{a^2}=a\\ (a>0)$',
+            answer: '(1) $7$ (2) $-8$ (3) $0.5$ (4) $-\\dfrac{3}{4}$',
+            explain: '【方針】\n$\\sqrt{a^2}=a\\ (a>0)$ を使って根号を外す。\n\n【解法】\n(1) $\\sqrt{49}=\\sqrt{7^2}=7$\n(2) $-\\sqrt{64}=-\\sqrt{8^2}=-8$\n(3) $\\sqrt{0.25}=\\sqrt{0.5^2}=0.5$\n(4) $-\\sqrt{\\dfrac{9}{16}}=-\\sqrt{\\left(\\dfrac{3}{4}\\right)^2}=-\\dfrac{3}{4}$',
+            time: 60
+          },
+          {
+            text: '次の各組の大小を不等号で表せ。\n(1) $3$ と $\\sqrt{10}$\n(2) $\\sqrt{0.5}$ と $0.5$\n(3) $-\\sqrt{3}$ と $-\\sqrt{2}$\n(4) $-\\sqrt{7}$ と $-7$',
+            hint: '正の数は2乗して比較。負の数は絶対値が大きいほど小さい。',
+            answer: '(1) $3 < \\sqrt{10}$ (2) $\\sqrt{0.5} > 0.5$ (3) $-\\sqrt{3} < -\\sqrt{2}$ (4) $-\\sqrt{7} > -7$',
+            explain: '【方針】\n$a>0, b>0$ のとき $a<b \\Leftrightarrow \\sqrt{a}<\\sqrt{b}$\n負の数は絶対値が大きいほど小さい。\n\n【解法】\n(1) $3=\\sqrt{9},\\ 9<10$ だから $\\sqrt{9}<\\sqrt{10}$ よって $3<\\sqrt{10}$\n(2) $0.5=\\sqrt{0.25},\\ 0.25<0.5$ だから $0.5<\\sqrt{0.5}$\n(3) 絶対値 $\\sqrt{3}>\\sqrt{2}$ なので $-\\sqrt{3}<-\\sqrt{2}$\n(4) $\\sqrt{7}\\approx 2.6 < 7$ なので $-\\sqrt{7}>-7$',
+            time: 90
+          },
+          {
+            text: '次のア〜エから正しいものをすべて選べ。\nア: $-20$ は $400$ の平方根のうち負の方である。\nイ: $10$ の平方根を $\\sqrt{}$ で表すと $\\pm\\sqrt{10}$\nウ: $\\sqrt{81}$ を $\\sqrt{}$ を使わずに表すと $\\pm 9$\nエ: $(-\\sqrt{6})^2$ の値は $6$',
+            hint: '$\\sqrt{81}=9$（根号は正の値のみ）であることに注意。',
+            answer: 'ア・イ・エ（ウは誤り：$\\sqrt{81}=9$ であり $\\pm 9$ ではない）',
+            explain: '【方針】\n平方根の定義と根号の意味を正確に確認する。\n\n【解法】\nア: $(-20)^2=400$ ✓ 正しい\nイ: $10$ の平方根は $\\pm\\sqrt{10}$ ✓ 正しい\nウ: $\\sqrt{81}=9$（根号は正の値のみ）✗ 誤り\nエ: $(-\\sqrt{6})^2=6$ ✓ 正しい\n\nよって正しいのは ア・イ・エ',
+            time: 60
+          },
+          {
+            text: '次の数を小さい順に並べよ。\n$0,\\ -\\sqrt{5},\\ \\sqrt{3},\\ -\\sqrt{2},\\ \\sqrt{6}$',
+            hint: '負の数どうし、正の数どうしで比較してから順番に並べる。',
+            answer: '$-\\sqrt{5} < -\\sqrt{2} < 0 < \\sqrt{3} < \\sqrt{6}$',
+            explain: '【方針】\n負の数は絶対値が大きいほど小さい。\n正の数は根号の中が大きいほど大きい。\n\n【解法】\n負: $\\sqrt{5}>\\sqrt{2}$ なので $-\\sqrt{5}<-\\sqrt{2}$\n正: $3<6$ なので $\\sqrt{3}<\\sqrt{6}$\nまとめ: $-\\sqrt{5} < -\\sqrt{2} < 0 < \\sqrt{3} < \\sqrt{6}$',
+            time: 60
+          },
+          {
+            text: '$\\sqrt{a} < 2$ となる自然数 $a$ をすべて求めよ。',
+            hint: '$\\sqrt{a}<2$ → 両辺2乗して $a<4$',
+            answer: '$a=1, 2, 3$',
+            explain: '【方針】\n$\\sqrt{a}<2$ の両辺を2乗する（両辺正なので不等号の向き不変）。\n\n【解法】\n$\\sqrt{a} < 2$\n$a < 4$\n自然数 $a$ は $a=1, 2, 3$',
+            time: 50
+          }
+        ]
+      },
+      {
+        id: 'sqrt_values', tag: '中学3年 第2章', name: '平方根の値・有理数と無理数', desc: '近似値・有理数と無理数の分類',
+        questions: [
+          {
+            text: '$\\sqrt{2}$ を小数で表したとき小数第2位の数を求めよ。（$1.41^2$ と $1.42^2$ を計算して示す）',
+            hint: '1.41² と 1.42² を計算し，2 との大小を比べる。',
+            answer: '$4$（$\\sqrt{2}\\approx 1.41\\ldots$ なので小数第2位は $4$）',
+            explain: '【方針】\n1.41² と 1.42² を計算し，2 を挟む範囲を求める。\n\n【解法】\n$1.41^2 = 1.9881$\n$1.42^2 = 2.0164$\n$1.9881 < 2 < 2.0164$\nよって $1.41 < \\sqrt{2} < 1.42$\nしたがって小数第2位の数は $4$',
+            time: 90
+          },
+          {
+            text: '次の数を有理数と無理数に分けよ。\n$0.1,\\ -\\sqrt{7},\\ -5,\\ \\sqrt{16},\\ \\sqrt{\\dfrac{4}{9}},\\ -\\sqrt{2}$',
+            hint: '分数 $\\dfrac{m}{n}$ の形で表せるかどうかで判断する。$\\sqrt{16}=4$，$\\sqrt{\\dfrac{4}{9}}=\\dfrac{2}{3}$ に注意。',
+            answer: '有理数：$0.1,\\ -5,\\ \\sqrt{16}(=4),\\ \\sqrt{\\dfrac{4}{9}}\\left(=\\dfrac{2}{3}\\right)$\n無理数：$-\\sqrt{7},\\ -\\sqrt{2}$',
+            explain: '【方針】\n有理数＝分数 $\\dfrac{m}{n}$ の形で表せる数。\n無理数＝分数で表せない数。\n\n【解法】\n$0.1 = \\dfrac{1}{10}$ → 有理数\n$-\\sqrt{7}$ → 無理数\n$-5 = -\\dfrac{5}{1}$ → 有理数\n$\\sqrt{16} = 4$ → 有理数\n$\\sqrt{\\dfrac{4}{9}} = \\dfrac{2}{3}$ → 有理数\n$-\\sqrt{2}$ → 無理数',
+            time: 60
+          },
+          {
+            text: 'ある数 $a$ の小数第2位を四捨五入した近似値が $1.6$ のとき，$a$ の範囲を不等号で表せ。',
+            hint: '四捨五入して $1.6$ になる範囲を考える。',
+            answer: '$1.55 \\leqq a < 1.65$',
+            explain: '【方針】\n四捨五入して $1.6$ になる → 小数第2位が $0$〜$4$ なら切り捨て，$5$〜$9$ なら切り上げ。\n\n【解法】\n$1.55$ 以上 $1.65$ 未満の数を四捨五入すると $1.6$ になる。\nよって $1.55 \\leqq a < 1.65$',
+            time: 60
+          },
+          {
+            text: '面積が $18\\,\\text{m}^2$ の正方形の花だんの1辺の長さを小数第2位まで求めよ。（$\\sqrt{2}=1.41$ を使う）',
+            hint: '1辺を $x$ とすると $x^2=18$。$\\sqrt{18}$ を簡単にしてから $\\sqrt{2}$ の値を代入。',
+            answer: '約 $4.23\\,\\text{m}$',
+            explain: '【方針】\n1辺を $x\\,\\text{m}$ とすると $x^2=18$ → $x=\\sqrt{18}$（$x>0$）\n\n【解法】\n$\\sqrt{18} = \\sqrt{9\\times 2} = 3\\sqrt{2}$\n$= 3 \\times 1.41 = 4.23$\nよって約 $4.23\\,\\text{m}$',
+            time: 75
+          }
+        ]
+      },
+      {
+        id: 'sqrt_mult_div', tag: '中学3年 第2章', name: '根号をふくむ式の乗法・除法', desc: '√の積・商・変形・有理化',
+        questions: [
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{6}\\times\\sqrt{5}$ (2) $\\sqrt{10}\\times\\sqrt{40}$ (3) $\\sqrt{7}\\times(-\\sqrt{2})$\n(4) $\\sqrt{39}\\div\\sqrt{3}$ (5) $\\sqrt{45}\\div\\sqrt{5}$ (6) $(-\\sqrt{14})\\div\\sqrt{12}$',
+            hint: '$\\sqrt{a}\\times\\sqrt{b}=\\sqrt{ab}$，$\\sqrt{a}\\div\\sqrt{b}=\\sqrt{\\dfrac{a}{b}}$ を使う。',
+            answer: '(1) $\\sqrt{30}$ (2) $20$ (3) $-\\sqrt{14}$\n(4) $\\sqrt{13}$ (5) $3$ (6) $-\\dfrac{\\sqrt{42}}{6}$',
+            explain: '【方針】\n$\\sqrt{a}\\times\\sqrt{b}=\\sqrt{ab}$，$\\sqrt{a}\\div\\sqrt{b}=\\sqrt{\\dfrac{a}{b}}$ の公式を使う。\n\n【解法】\n(1) $\\sqrt{6}\\times\\sqrt{5}=\\sqrt{30}$\n(2) $\\sqrt{10}\\times\\sqrt{40}=\\sqrt{400}=20$\n(3) $\\sqrt{7}\\times(-\\sqrt{2})=-\\sqrt{14}$\n(4) $\\sqrt{39}\\div\\sqrt{3}=\\sqrt{\\dfrac{39}{3}}=\\sqrt{13}$\n(5) $\\sqrt{45}\\div\\sqrt{5}=\\sqrt{\\dfrac{45}{5}}=\\sqrt{9}=3$\n(6) $(-\\sqrt{14})\\div\\sqrt{12}=-\\sqrt{\\dfrac{14}{12}}=-\\sqrt{\\dfrac{7}{6}}=-\\dfrac{\\sqrt{42}}{6}$',
+            time: 120
+          },
+          {
+            text: '次の数を $\\sqrt{a}$ の形にせよ。\n(1) $2\\sqrt{2}$ (2) $3\\sqrt{3}$ (3) $\\dfrac{\\sqrt{18}}{3}$',
+            hint: '$a\\sqrt{b}=\\sqrt{a^2 b}$ を使う。',
+            answer: '(1) $\\sqrt{8}$ (2) $\\sqrt{27}$ (3) $\\sqrt{2}$',
+            explain: '【方針】\n$a\\sqrt{b} = \\sqrt{a^2\\times b}$ を使って $\\sqrt{a}$ の形に変形する。\n\n【解法】\n(1) $2\\sqrt{2}=\\sqrt{4\\times 2}=\\sqrt{8}$\n(2) $3\\sqrt{3}=\\sqrt{9\\times 3}=\\sqrt{27}$\n(3) $\\dfrac{\\sqrt{18}}{3}=\\dfrac{\\sqrt{18}}{\\sqrt{9}}=\\sqrt{\\dfrac{18}{9}}=\\sqrt{2}$',
+            time: 60
+          },
+          {
+            text: '次の $\\sqrt{}$ の中をできるだけ簡単な数にせよ。\n(1) $\\sqrt{20}$ (2) $\\sqrt{\\dfrac{5}{64}}$ (3) $\\sqrt{300}$ (4) $\\sqrt{0.02}$',
+            hint: '$\\sqrt{a^2 b}=a\\sqrt{b}$ を使う。素因数分解が有効。',
+            answer: '(1) $2\\sqrt{5}$ (2) $\\dfrac{\\sqrt{5}}{8}$ (3) $10\\sqrt{3}$ (4) $\\dfrac{\\sqrt{2}}{10}$',
+            explain: '【方針】\n根号の中を素因数分解して，平方数を外に出す。\n\n【解法】\n(1) $\\sqrt{20}=\\sqrt{4\\times 5}=2\\sqrt{5}$\n(2) $\\sqrt{\\dfrac{5}{64}}=\\dfrac{\\sqrt{5}}{8}$\n(3) $\\sqrt{300}=\\sqrt{100\\times 3}=10\\sqrt{3}$\n(4) $\\sqrt{0.02}=\\sqrt{\\dfrac{2}{100}}=\\dfrac{\\sqrt{2}}{10}$',
+            time: 90
+          },
+          {
+            text: '次の数の分母を有理化せよ。\n(1) $\\dfrac{1}{\\sqrt{6}}$ (2) $\\dfrac{\\sqrt{3}}{\\sqrt{5}}$ (3) $\\dfrac{9}{\\sqrt{18}}$',
+            hint: '分母と分子に同じ $\\sqrt{}$ をかけて分母から根号を消す。',
+            answer: '(1) $\\dfrac{\\sqrt{6}}{6}$ (2) $\\dfrac{\\sqrt{15}}{5}$ (3) $\\dfrac{3\\sqrt{2}}{2}$',
+            explain: '【方針】\n分母・分子に分母の $\\sqrt{}$ をかけて有理化する。\n\n【解法】\n(1) $\\dfrac{1}{\\sqrt{6}}=\\dfrac{\\sqrt{6}}{6}$\n(2) $\\dfrac{\\sqrt{3}}{\\sqrt{5}}=\\dfrac{\\sqrt{3}\\times\\sqrt{5}}{\\sqrt{5}\\times\\sqrt{5}}=\\dfrac{\\sqrt{15}}{5}$\n(3) $\\dfrac{9}{\\sqrt{18}}=\\dfrac{9}{3\\sqrt{2}}=\\dfrac{3}{\\sqrt{2}}=\\dfrac{3\\sqrt{2}}{2}$',
+            time: 90
+          },
+          {
+            text: '$\\sqrt{3}=1.732$ として次の値を求めよ。\n(1) $\\sqrt{27}$ (2) $\\dfrac{12}{\\sqrt{3}}$',
+            hint: 'まず根号の中を簡単にしてから，$\\sqrt{3}=1.732$ を代入する。',
+            answer: '(1) $5.196$ (2) $6.928$',
+            explain: '【方針】\nまず根号を簡単にしてから $\\sqrt{3}$ の値を代入する。\n\n【解法】\n(1) $\\sqrt{27}=3\\sqrt{3}=3\\times 1.732=5.196$\n(2) $\\dfrac{12}{\\sqrt{3}}=\\dfrac{12\\sqrt{3}}{3}=4\\sqrt{3}=4\\times 1.732=6.928$',
+            time: 75
+          },
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{6}\\times 2\\sqrt{3}$ (2) $\\sqrt{18}\\div\\sqrt{8}$ (3) $\\sqrt{50}\\times\\sqrt{48}$\n(4) $\\sqrt{10}\\div\\sqrt{5}\\times(-\\sqrt{2})$ (5) $\\sqrt{24}\\div(-\\sqrt{18})\\div\\sqrt{3}$',
+            hint: '乗除を先に処理してから根号の中を整理する。',
+            answer: '(1) $6\\sqrt{2}$ (2) $\\dfrac{3}{2}$ (3) $20\\sqrt{6}$ (4) $-2$ (5) $-\\dfrac{2}{3}$',
+            explain: '【方針】\nまとめて計算するか，順番に処理する。\n\n【解法】\n(1) $\\sqrt{6}\\times 2\\sqrt{3}=2\\sqrt{18}=6\\sqrt{2}$\n(2) $\\sqrt{18}\\div\\sqrt{8}=\\sqrt{\\dfrac{18}{8}}=\\sqrt{\\dfrac{9}{4}}=\\dfrac{3}{2}$\n(3) $\\sqrt{50}\\times\\sqrt{48}=\\sqrt{2400}=\\sqrt{400\\times 6}=20\\sqrt{6}$\n(4) $\\sqrt{10}\\div\\sqrt{5}\\times(-\\sqrt{2})=\\sqrt{2}\\times(-\\sqrt{2})=-2$\n(5) $\\sqrt{24}\\div(-\\sqrt{18})\\div\\sqrt{3}=-\\dfrac{\\sqrt{24}}{\\sqrt{18}\\times\\sqrt{3}}=-\\dfrac{\\sqrt{24}}{\\sqrt{54}}=-\\sqrt{\\dfrac{4}{9}}=-\\dfrac{2}{3}$',
+            time: 150
+          }
+        ]
+      },
+      {
+        id: 'sqrt_calc', tag: '中学3年 第2章', name: '根号をふくむ式の計算', desc: '加減・展開・複合計算',
+        questions: [
+          {
+            text: '次の計算をせよ。\n(1) $8\\sqrt{6}-2\\sqrt{6}$ (2) $-\\sqrt{3}+6\\sqrt{3}-2\\sqrt{3}$\n(3) $5\\sqrt{2}-7\\sqrt{2}+\\sqrt{2}$ (4) $4\\sqrt{5}+3\\sqrt{3}-3\\sqrt{5}$',
+            hint: '根号の中が同じものどうしをまとめる（文字式と同様）。',
+            answer: '(1) $6\\sqrt{6}$ (2) $3\\sqrt{3}$ (3) $-\\sqrt{2}$ (4) $\\sqrt{5}+3\\sqrt{3}$',
+            explain: '【方針】\n$\\sqrt{}$ の中が同じ項をまとめる。$4a+3a=(4+3)a$ と同様。\n\n【解法】\n(1) $8\\sqrt{6}-2\\sqrt{6}=(8-2)\\sqrt{6}=6\\sqrt{6}$\n(2) $(-1+6-2)\\sqrt{3}=3\\sqrt{3}$\n(3) $(5-7+1)\\sqrt{2}=-\\sqrt{2}$\n(4) $(4-3)\\sqrt{5}+3\\sqrt{3}=\\sqrt{5}+3\\sqrt{3}$',
+            time: 60
+          },
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{75}+\\sqrt{27}$ (2) $\\sqrt{72}+\\sqrt{32}$\n(3) $\\sqrt{8}-\\sqrt{18}+\\sqrt{2}$ (4) $\\sqrt{20}-\\sqrt{45}-\\sqrt{5}$',
+            hint: 'まず各項の根号の中を簡単にしてから同類項をまとめる。',
+            answer: '(1) $8\\sqrt{3}$ (2) $10\\sqrt{2}$ (3) $0$ (4) $-2\\sqrt{5}$',
+            explain: '【方針】\nまず各項を $a\\sqrt{b}$ の形に変形してからまとめる。\n\n【解法】\n(1) $5\\sqrt{3}+3\\sqrt{3}=8\\sqrt{3}$\n(2) $6\\sqrt{2}+4\\sqrt{2}=10\\sqrt{2}$\n(3) $2\\sqrt{2}-3\\sqrt{2}+\\sqrt{2}=0$\n(4) $2\\sqrt{5}-3\\sqrt{5}-\\sqrt{5}=-2\\sqrt{5}$',
+            time: 90
+          },
+          {
+            text: '$\\sqrt{48}-\\sqrt{27}+\\sqrt{3}$ を計算せよ。',
+            hint: '各項を $\\sqrt{3}$ を使った形に直す。',
+            answer: '$2\\sqrt{3}$',
+            explain: '【方針】\n各項を $\\sqrt{3}$ を含む形に変形してまとめる。\n\n【解法】\n$\\sqrt{48}=4\\sqrt{3}$\n$\\sqrt{27}=3\\sqrt{3}$\n$4\\sqrt{3}-3\\sqrt{3}+\\sqrt{3}=(4-3+1)\\sqrt{3}=2\\sqrt{3}$',
+            time: 60
+          },
+          {
+            text: '$\\sqrt{50}-\\dfrac{4}{\\sqrt{2}}$ を計算せよ。',
+            hint: '$\\sqrt{50}$ を簡単にし，$\\dfrac{4}{\\sqrt{2}}$ は分母を有理化してから計算する。',
+            answer: '$3\\sqrt{2}$',
+            explain: '【方針】\nまず各項を整理する。分母に $\\sqrt{}$ があれば有理化する。\n\n【解法】\n$\\sqrt{50}=5\\sqrt{2}$\n$\\dfrac{4}{\\sqrt{2}}=\\dfrac{4\\sqrt{2}}{2}=2\\sqrt{2}$\n$5\\sqrt{2}-2\\sqrt{2}=3\\sqrt{2}$',
+            time: 75
+          },
+          {
+            text: '次の計算をせよ。\n(1) $\\sqrt{3}(1-\\sqrt{3})$ (2) $\\sqrt{5}(\\sqrt{20}-2)$ (3) $(\\sqrt{6}+\\sqrt{2})\\div\\sqrt{2}$',
+            hint: '分配法則を使う。$\\sqrt{a}\\times\\sqrt{a}=a$ に注意。',
+            answer: '(1) $\\sqrt{3}-3$ (2) $10-2\\sqrt{5}$ (3) $\\sqrt{3}+1$',
+            explain: '【方針】\n分配法則 $a(b+c)=ab+ac$ を $\\sqrt{}$ に適用する。\n\n【解法】\n(1) $\\sqrt{3}\\times 1-\\sqrt{3}\\times\\sqrt{3}=\\sqrt{3}-3$\n(2) $\\sqrt{5}\\times\\sqrt{20}-\\sqrt{5}\\times 2=\\sqrt{100}-2\\sqrt{5}=10-2\\sqrt{5}$\n(3) $(\\sqrt{6}+\\sqrt{2})\\div\\sqrt{2}=\\dfrac{\\sqrt{6}}{\\sqrt{2}}+\\dfrac{\\sqrt{2}}{\\sqrt{2}}=\\sqrt{3}+1$',
+            time: 90
+          },
+          {
+            text: '次の計算をせよ。\n(1) $(\\sqrt{2}+1)(\\sqrt{3}+2)$ (2) $(\\sqrt{6}-2)(2\\sqrt{6}+3)$',
+            hint: '$(a+b)(c+d)=ac+ad+bc+bd$ の展開を使う。',
+            answer: '(1) $\\sqrt{6}+2\\sqrt{2}+\\sqrt{3}+2$ (2) $6-\\sqrt{6}$',
+            explain: '【方針】\n分配法則で展開し，同類項をまとめる。\n\n【解法】\n(1) $\\sqrt{2}\\times\\sqrt{3}+\\sqrt{2}\\times 2+1\\times\\sqrt{3}+1\\times 2$\n$=\\sqrt{6}+2\\sqrt{2}+\\sqrt{3}+2$\n(2) $\\sqrt{6}\\times 2\\sqrt{6}+\\sqrt{6}\\times 3+(-2)\\times 2\\sqrt{6}+(-2)\\times 3$\n$=12+3\\sqrt{6}-4\\sqrt{6}-6$\n$=6-\\sqrt{6}$',
+            time: 90
+          },
+          {
+            text: '次の計算をせよ。\n(1) $(\\sqrt{2}-1)^2$ (2) $(\\sqrt{5}+\\sqrt{6})(\\sqrt{5}-\\sqrt{6})$\n(3) $(\\sqrt{3}+5)(\\sqrt{3}+4)$ (4) $(\\sqrt{2}+1)(\\sqrt{2}-7)$',
+            hint: '乗法の公式 $(a\\pm b)^2=a^2\\pm 2ab+b^2$，$(a+b)(a-b)=a^2-b^2$ を使う。',
+            answer: '(1) $3-2\\sqrt{2}$ (2) $-1$ (3) $23+9\\sqrt{3}$ (4) $-5-6\\sqrt{2}$',
+            explain: '【方針】\n乗法の公式を活用する。\n\n【解法】\n(1) $(\\sqrt{2})^2-2\\times\\sqrt{2}\\times 1+1^2=2-2\\sqrt{2}+1=3-2\\sqrt{2}$\n(2) $(\\sqrt{5})^2-(\\sqrt{6})^2=5-6=-1$\n(3) $(\\sqrt{3})^2+(4+5)\\sqrt{3}+5\\times 4=3+9\\sqrt{3}+20=23+9\\sqrt{3}$\n(4) $(\\sqrt{2})^2+(-7+1)\\sqrt{2}+1\\times(-7)=2-6\\sqrt{2}-7=-5-6\\sqrt{2}$',
+            time: 120
+          },
+          {
+            text: '$\\sqrt{60a}$ の値が自然数となる自然数 $a$ のうち最も小さいものを求めよ。',
+            hint: '$\\sqrt{60a}$ が自然数 → $60a$ が完全平方数になる条件を考える。素因数分解を利用。',
+            answer: '$a=15$',
+            explain: '【方針】\n$60$ を素因数分解し，完全平方数になるために必要な因数を求める。\n\n【解法】\n$60=2^2\\times 3\\times 5$\n$\\sqrt{60a}=\\sqrt{2^2\\times 3\\times 5\\times a}$\nこれが自然数になるには $3\\times 5\\times a$ が完全平方数になればよい。\n最小の $a$ は $a=3\\times 5=15$\n確認：$\\sqrt{60\\times 15}=\\sqrt{900}=30$ ✓',
+            time: 90
+          },
+          {
+            text: '$x=\\sqrt{3}-\\sqrt{2},\\ y=\\sqrt{3}+\\sqrt{2}$ のとき，\n(1) $(x+y)^2$ (2) $xy$ (3) $x^2-y^2$ の値を求めよ。',
+            hint: 'まず $x+y$ と $xy$ を計算してから公式を使う。$x^2-y^2=(x+y)(x-y)$',
+            answer: '(1) $12$ (2) $1$ (3) $-4\\sqrt{6}$',
+            explain: '【方針】\nまず $x+y$，$x-y$，$xy$ を求め，式に代入する。\n\n【解法】\n$x+y=(\\sqrt{3}-\\sqrt{2})+(\\sqrt{3}+\\sqrt{2})=2\\sqrt{3}$\n$x-y=(\\sqrt{3}-\\sqrt{2})-(\\sqrt{3}+\\sqrt{2})=-2\\sqrt{2}$\n$xy=(\\sqrt{3}-\\sqrt{2})(\\sqrt{3}+\\sqrt{2})=3-2=1$\n\n(1) $(x+y)^2=(2\\sqrt{3})^2=12$\n(2) $xy=1$\n(3) $x^2-y^2=(x+y)(x-y)=2\\sqrt{3}\\times(-2\\sqrt{2})=-4\\sqrt{6}$',
+            time: 120
+          }
+        ]
+      }
+    ]
   },
   {
     id: 'grade4',
